@@ -25,50 +25,6 @@ class GameApp {
                 btnLogin.addEventListener('click', () => this.showScreen('login-screen'));
             }
             
-            // Кнопка продолжения регистрации
-            const btnContinueRegistration = document.getElementById('btn-continue-registration');
-            if (btnContinueRegistration) {
-                btnContinueRegistration.addEventListener('click', () => {
-                    // Валидируем форму регистрации вручную
-                    const form = document.getElementById('register-form');
-                    if (form) {
-                        const formData = new FormData(form);
-                        const nickname = formData.get('nickname')?.trim();
-                        const password = formData.get('password');
-                        const passwordRepeat = formData.get('password-repeat');
-                        const faction = formData.get('faction');
-                        const gender = formData.get('gender');
-                        
-                        // Валидация
-                        const validation = window.authSystem.validateRegistration(nickname, password, passwordRepeat, faction, gender);
-                        if (!validation.isValid) {
-                            window.authSystem.showError(validation.message);
-                            return;
-                        }
-                        
-                        // Проверка существования пользователя
-                        if (window.authSystem.userExists(nickname)) {
-                            window.authSystem.showError('Пользователь с таким никнеймом уже существует!');
-                            return;
-                        }
-                        
-                        // Сохраняем данные регистрации
-                        window.tempRegistrationData = {
-                            nickname,
-                            password,
-                            faction,
-                            gender
-                        };
-                        
-                        // Передаем данные в персонажа
-                        window.gameCharacter.setCharacterInfo(nickname, faction, gender);
-                        
-                        // Переходим к созданию персонажа
-                        this.showScreen('character-screen');
-                    }
-                });
-            }
-            
             // Кнопки "Назад"
             const btnBack = document.getElementById('btn-back');
             const btnLoginBack = document.getElementById('btn-login-back');
@@ -142,6 +98,8 @@ class GameApp {
             case 'register-screen':
                 // Очищаем форму регистрации
                 this.clearForm('register-form');
+                // Добавляем обработчик для кнопки продолжения при показе экрана
+                this.initRegisterButton();
                 break;
                 
             case 'login-screen':
@@ -156,6 +114,69 @@ class GameApp {
                 }
                 window.gameCharacter.resetStats();
                 break;
+        }
+    }
+    
+    /**
+     * Инициализация кнопки регистрации
+     */
+    initRegisterButton() {
+        console.log('Инициализация кнопки регистрации...');
+        const btnContinueRegistration = document.getElementById('btn-continue-registration');
+        console.log('Кнопка найдена:', btnContinueRegistration);
+        
+        if (btnContinueRegistration) {
+            // Удаляем старые обработчики
+            btnContinueRegistration.replaceWith(btnContinueRegistration.cloneNode(true));
+            const newBtn = document.getElementById('btn-continue-registration');
+            
+            newBtn.addEventListener('click', () => {
+                console.log('Кнопка Продолжить нажата');
+                
+                // Валидируем форму регистрации вручную
+                const form = document.getElementById('register-form');
+                if (form) {
+                    const formData = new FormData(form);
+                    const nickname = formData.get('nickname')?.trim();
+                    const password = formData.get('password');
+                    const passwordRepeat = formData.get('password-repeat');
+                    const faction = formData.get('faction');
+                    const gender = formData.get('gender');
+                    
+                    console.log('Данные формы:', { nickname, password, passwordRepeat, faction, gender });
+                    
+                    // Валидация
+                    const validation = window.authSystem.validateRegistration(nickname, password, passwordRepeat, faction, gender);
+                    if (!validation.isValid) {
+                        window.authSystem.showError(validation.message);
+                        return;
+                    }
+                    
+                    // Проверка существования пользователя
+                    if (window.authSystem.userExists(nickname)) {
+                        window.authSystem.showError('Пользователь с таким никнеймом уже существует!');
+                        return;
+                    }
+                    
+                    // Создаем персонажа сразу
+                    window.gameCharacter.setCharacterInfo(nickname, faction, gender);
+                    const characterData = window.gameCharacter.getCharacterData();
+                    
+                    // Создаем пользователя
+                    const newUser = window.authSystem.createUser(characterData, password);
+                    window.authSystem.setCurrentUser(newUser);
+                    
+                    console.log('Пользователь создан и авторизован:', newUser);
+                    
+                    // Переходим сразу в игру
+                    this.showScreen('game-screen');
+                    window.authSystem.displayPlayerInfo(newUser);
+                }
+            });
+            
+            console.log('Обработчик события добавлен к кнопке');
+        } else {
+            console.error('Кнопка btn-continue-registration не найдена!');
         }
     }
     

@@ -41,14 +41,14 @@ class Character {
      * Рассчитать здоровье на основе выносливости
      */
     calculateHealth() {
-        return 50 + (this.stats.end * 10);
+        return 100 + (this.stats.end * 5); // Базовое здоровье 100 + выносливость * 5
     }
     
     /**
      * Рассчитать ману на основе интеллекта
      */
     calculateMana() {
-        return 30 + (this.stats.int * 8);
+        return 50 + (this.stats.int * 5); // Базовая мана 50 + интеллект * 5
     }
     
     /**

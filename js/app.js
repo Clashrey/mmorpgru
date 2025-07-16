@@ -136,15 +136,18 @@ class GameApp {
      */
     checkAutoLogin() {
         document.addEventListener('DOMContentLoaded', () => {
-            const currentUser = window.authSystem.getCurrentUser();
-            if (currentUser) {
-                // Если пользователь уже авторизован, показываем игровой экран
-                this.showScreen('game-screen');
-                window.authSystem.displayPlayerInfo(currentUser);
-            } else {
-                // Иначе показываем стартовый экран
-                this.showScreen('loading-screen');
-            }
+            // Добавляем небольшую задержку для загрузки всех компонентов
+            setTimeout(() => {
+                const currentUser = window.authSystem.getCurrentUser();
+                if (currentUser) {
+                    // Если пользователь уже авторизован, показываем игровой экран
+                    this.showScreen('game-screen');
+                    window.authSystem.displayPlayerInfo(currentUser);
+                } else {
+                    // Иначе показываем стартовый экран
+                    this.showScreen('loading-screen');
+                }
+            }, 100);
         });
     }
     

@@ -133,159 +133,103 @@
             </div>
 
             <!-- Информация об игроке -->
-            <div class="player-info">
-                <div class="player-stats">
-                    <div class="stat-display">
-                        <div class="label">Никнейм</div>
-                        <div class="value" id="gym-player-name">Игрок</div>
-                    </div>
-                    <div class="stat-display">
-                        <div class="label">Уровень</div>
-                        <div class="value" id="gym-player-level">1</div>
-                    </div>
-                    <div class="stat-display">
-                        <div class="label">Здоровье</div>
-                        <div class="value" id="gym-player-health">70</div>
-                    </div>
-                </div>
-                <div class="gold-display">
-                    <div class="label">Золото</div>
-                    <div class="value" id="gym-player-gold">100</div>
+            <div class="player-info-gym">
+                <div class="player-gold">
+                    <span class="gold-label">Золото:</span>
+                    <span class="gold-value" id="gym-player-gold">100</span>
                 </div>
             </div>
 
-            <!-- Сетка тренировок -->
-            <div class="training-grid">
-                <!-- Сила -->
-                <div class="training-card expensive" data-stat="str">
-                    <div class="difficulty-indicator difficulty-extreme">ЭЛИТА</div>
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <span class="stat-icon">💪</span>
-                            <span class="stat-name">Сила</span>
-                        </div>
-                        <span class="stat-level" id="gym-stat-str">5</span>
+            <!-- Таблица характеристик -->
+            <div class="stats-table">
+                <div class="stat-row">
+                    <div class="stat-info">
+                        <div class="stat-name">Сила</div>
+                        <div class="stat-level" id="gym-stat-str">5</div>
                     </div>
                     <div class="stat-description">
-                        Увеличивает физический урон в бою. Чем больше силы, тем сильнее бьешь противников.
+                        Влияет на наносимый урон
                     </div>
-                    <div class="training-cost">
-                        <span class="cost-label">Стоимость тренировки:</span>
-                        <span class="cost-value expensive" id="gym-cost-str">224 💰</span>
+                    <div class="stat-controls">
+                        <button class="upgrade-btn expensive" data-stat="str">
+                            Повысить — <span id="gym-cost-str">224</span> 💰
+                        </button>
                     </div>
-                    <button class="train-button expensive" data-stat="str">
-                        Тренировать силу
-                    </button>
                 </div>
 
-                <!-- Выносливость -->
-                <div class="training-card expensive" data-stat="end">
-                    <div class="difficulty-indicator difficulty-hard">СЛОЖНО</div>
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <span class="stat-icon">🛡️</span>
-                            <span class="stat-name">Выносливость</span>
-                        </div>
-                        <span class="stat-level" id="gym-stat-end">5</span>
+                <div class="stat-row">
+                    <div class="stat-info">
+                        <div class="stat-name">Выносливость</div>
+                        <div class="stat-level" id="gym-stat-end">5</div>
                     </div>
                     <div class="stat-description">
-                        Увеличивает максимальное здоровье и физическую защиту. Больше выносливости = больше живучести.
+                        Влияет на количество здоровья и защиту
                     </div>
-                    <div class="training-cost">
-                        <span class="cost-label">Стоимость тренировки:</span>
-                        <span class="cost-value expensive" id="gym-cost-end">191 💰</span>
+                    <div class="stat-controls">
+                        <button class="upgrade-btn expensive" data-stat="end">
+                            Повысить — <span id="gym-cost-end">191</span> 💰
+                        </button>
                     </div>
-                    <button class="train-button expensive" data-stat="end">
-                        Тренировать выносливость
-                    </button>
                 </div>
 
-                <!-- Реакция -->
-                <div class="training-card" data-stat="dex">
-                    <div class="difficulty-indicator difficulty-medium">СРЕДНЕ</div>
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <span class="stat-icon">⚡</span>
-                            <span class="stat-name">Реакция</span>
-                        </div>
-                        <span class="stat-level" id="gym-stat-dex">3</span>
+                <div class="stat-row">
+                    <div class="stat-info">
+                        <div class="stat-name">Реакция</div>
+                        <div class="stat-level" id="gym-stat-dex">3</div>
                     </div>
                     <div class="stat-description">
-                        Влияет на защиту, скорость атак и увороты. Высокая реакция поможет избежать вражеских ударов.
+                        Влияет на защиту и скорость ударов
                     </div>
-                    <div class="training-cost">
-                        <span class="cost-label">Стоимость тренировки:</span>
-                        <span class="cost-value" id="gym-cost-dex">134 💰</span>
+                    <div class="stat-controls">
+                        <button class="upgrade-btn" data-stat="dex">
+                            Повысить — <span id="gym-cost-dex">134</span> 💰
+                        </button>
                     </div>
-                    <button class="train-button" data-stat="dex">
-                        Тренировать реакцию
-                    </button>
                 </div>
 
-                <!-- Удача -->
-                <div class="training-card" data-stat="lck">
-                    <div class="difficulty-indicator difficulty-medium">СРЕДНЕ</div>
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <span class="stat-icon">🍀</span>
-                            <span class="stat-name">Удача</span>
-                        </div>
-                        <span class="stat-level" id="gym-stat-lck">3</span>
+                <div class="stat-row">
+                    <div class="stat-info">
+                        <div class="stat-name">Интеллект</div>
+                        <div class="stat-level" id="gym-stat-int">1</div>
                     </div>
                     <div class="stat-description">
-                        Влияет на критические удары, двойные атаки и увороты. Везение в бою решает многое!
+                        Влияет на увороты от ударов
                     </div>
-                    <div class="training-cost">
-                        <span class="cost-label">Стоимость тренировки:</span>
-                        <span class="cost-value" id="gym-cost-lck">123 💰</span>
+                    <div class="stat-controls">
+                        <button class="upgrade-btn" data-stat="int">
+                            Повысить — <span id="gym-cost-int">112</span> 💰
+                        </button>
                     </div>
-                    <button class="train-button" data-stat="lck">
-                        Тренировать удачу
-                    </button>
                 </div>
 
-                <!-- Интеллект -->
-                <div class="training-card" data-stat="int">
-                    <div class="difficulty-indicator difficulty-easy">ЛЕГКО</div>
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <span class="stat-icon">🧠</span>
-                            <span class="stat-name">Интеллект</span>
-                        </div>
-                        <span class="stat-level" id="gym-stat-int">1</span>
+                <div class="stat-row">
+                    <div class="stat-info">
+                        <div class="stat-name">Харизма</div>
+                        <div class="stat-level" id="gym-stat-cha">1</div>
                     </div>
                     <div class="stat-description">
-                        Помогает уворачиваться от атак противника. Умный боец предвидит удары врага.
+                        Пока что не влияет на игру
                     </div>
-                    <div class="training-cost">
-                        <span class="cost-label">Стоимость тренировки:</span>
-                        <span class="cost-value" id="gym-cost-int">112 💰</span>
+                    <div class="stat-controls">
+                        <button class="upgrade-btn" data-stat="cha">
+                            Повысить — <span id="gym-cost-cha">89</span> 💰
+                        </button>
                     </div>
-                    <button class="train-button" data-stat="int">
-                        Тренировать интеллект
-                    </button>
                 </div>
 
-                <!-- Харизма -->
-                <div class="training-card" data-stat="cha">
-                    <div class="difficulty-indicator difficulty-easy">ДЕШЕВО</div>
-                    <div class="stat-header">
-                        <div class="stat-title">
-                            <span class="stat-icon">💬</span>
-                            <span class="stat-name">Харизма</span>
-                        </div>
-                        <span class="stat-level" id="gym-stat-cha">1</span>
+                <div class="stat-row">
+                    <div class="stat-info">
+                        <div class="stat-name">Удача</div>
+                        <div class="stat-level" id="gym-stat-lck">3</div>
                     </div>
                     <div class="stat-description">
-                        Пока что не влияет на игру, но в будущем поможет в общении с NPC и торговле.
+                        Влияет на критические удары и увороты
                     </div>
-                    <div class="training-cost">
-                        <span class="cost-label">Стоимость тренировки:</span>
-                        <span class="cost-value" id="gym-cost-cha">89 💰</span>
+                    <div class="stat-controls">
+                        <button class="upgrade-btn" data-stat="lck">
+                            Повысить — <span id="gym-cost-lck">123</span> 💰
+                        </button>
                     </div>
-                    <button class="train-button" data-stat="cha">
-                        Тренировать харизму
-                    </button>
                 </div>
             </div>
 

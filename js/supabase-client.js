@@ -1,9 +1,9 @@
-// js/supabase-client.js - Обновленный клиент с исправлениями
+// js/supabase-client.js - Готовый клиент для работы с Supabase
 class SupabaseGameClient {
     constructor() {
-        // Замени на свои данные из Supabase проекта
-        this.supabaseUrl = 'YOUR_SUPABASE_URL'; // например: https://xxxxx.supabase.co
-        this.supabaseKey = 'YOUR_SUPABASE_ANON_KEY'; // Public anon key
+        // Твои данные Supabase проекта
+        this.supabaseUrl = 'https://gkqhsscmxzvbaabesoch.supabase.co';
+        this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrcWhzc2NteHp2YmFhYmVzb2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2Nzc0MTQsImV4cCI6MjA2ODI1MzQxNH0.CcqxRWMosNa6UP1XaRpBcmBSrB44PGQpBrsSSuC45j0';
         this.supabase = null;
         this.currentSession = null;
         this.realtimeChannel = null;
@@ -279,7 +279,7 @@ class SupabaseGameClient {
     // Симуляция боя
     async simulateBattle(player, mob) {
         const playerStats = {
-            hp: 50 + (player.end_stat || player.end || 1) * 10, // учитываем оба варианта названия
+            hp: 50 + (player.end_stat || player.end || 1) * 10,
             attack: 10 + (player.str || 1) * 3,
             defense: (player.end_stat || player.end || 1) * 2,
             dodgeChance: (player.dex || 1) * 1.5 + (player.int || 1) * 2 + (player.lck || 1) * 1
@@ -611,3 +611,40 @@ class SupabaseGameClient {
 if (!window.supabaseClient) {
     window.supabaseClient = new SupabaseGameClient();
 }
+
+// Интеграция с существующей системой авторизации
+document.addEventListener('DOMContentLoaded', () => {
+    // Заменяем методы authSystem для работы с Supabase
+    if (window.authSystem) {
+        const originalCreateUser = window.authSystem.createUser;
+        const originalAuthenticateUser = window.authSystem.authenticateUser;
+        
+        window.authSystem.createUser = async function(characterData, password) {
+            if (window.supabaseClient.isConnected) {
+                try {
+                    const supabaseUser = await window.supabaseClient.registerPlayer(characterData, password);
+                    return supabaseUser;
+                } catch (error) {
+                    console.log('Ошибка Supabase, используем локальное хранилище:', error.message);
+                    return originalCreateUser.call(this, characterData, password);
+                }
+            } else {
+                return originalCreateUser.call(this, characterData, password);
+            }
+        };
+        
+        window.authSystem.authenticateUser = async function(nickname, password) {
+            if (window.supabaseClient.isConnected) {
+                try {
+                    const supabaseUser = await window.supabaseClient.loginPlayer(nickname, password);
+                    return supabaseUser;
+                } catch (error) {
+                    console.log('Ошибка Supabase, используем локальное хранилище:', error.message);
+                    return originalAuthenticateUser.call(this, nickname, password);
+                }
+            } else {
+                return originalAuthenticateUser.call(this, nickname, password);
+            }
+        };
+    }
+});

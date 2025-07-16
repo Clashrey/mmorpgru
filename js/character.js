@@ -14,8 +14,20 @@ class Character {
         };
         
         // Свободные очки для распределения
-        this.freePoints = 20;
-        this.updateStatsDisplay();
+    /**
+     * Сбросить характеристики к базовым значениям
+     */
+    resetStats() {
+        this.stats = {
+            str: 1,
+            int: 1,
+            cha: 1,
+            end: 1,
+            dex: 1,
+            lck: 1
+        };
+        this.freePoints = 0;
+        // Убираем вызов updateStatsDisplay() так как экран характеристик больше не используется
     }
     
     /**
@@ -192,7 +204,8 @@ window.gameCharacter = new Character();
         this.faction = faction;
         this.gender = gender;
         
-        this.updateCharacterPreview();
+        // Убираем вызов updateCharacterPreview() так как экран характеристик не используется
+        console.log('Информация о персонаже установлена:', { nickname, faction, gender });
     }
     
     /**

@@ -1,11 +1,11 @@
 /**
- * Главный класс приложения
+ * Класс для управления авторизацией и регистрацией
  */
-class GameApp {
+class AuthSystem {
     constructor() {
-        this.currentScreen = 'loading-screen';
+        this.storageKey = 'mmo_rpg_users';
+        this.currentUserKey = 'mmo_rpg_current_user';
         this.initializeEventListeners();
-        this.checkAutoLogin();
     }
     
     /**
@@ -13,202 +13,308 @@ class GameApp {
      */
     initializeEventListeners() {
         document.addEventListener('DOMContentLoaded', () => {
-            // Кнопки главного меню
-            const btnRegister = document.getElementById('btn-register');
-            const btnLogin = document.getElementById('btn-login');
-            
-            if (btnRegister) {
-                btnRegister.addEventListener('click', () => this.showScreen('register-screen'));
+            // Форма регистрации
+            const registerForm = document.getElementById('register-form');
+            if (registerForm) {
+                registerForm.addEventListener('submit', (e) => this.handleRegister(e));
             }
             
-            if (btnLogin) {
-                btnLogin.addEventListener('click', () => this.showScreen('login-screen'));
+            // Форма входа
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => this.handleLogin(e));
             }
             
-            // Кнопки "Назад"
-            const btnBack = document.getElementById('btn-back');
-            const btnLoginBack = document.getElementById('btn-login-back');
-            const btnCharBack = document.getElementById('btn-char-back');
-            
-            if (btnBack) {
-                btnBack.addEventListener('click', () => this.showScreen('loading-screen'));
+            // Проверка паролей в реальном времени
+            const passwordRepeat = document.getElementById('password-repeat');
+            if (passwordRepeat) {
+                passwordRepeat.addEventListener('input', () => this.validatePasswordMatch());
             }
             
-            if (btnLoginBack) {
-                btnLoginBack.addEventListener('click', () => this.showScreen('loading-screen'));
-            }
-            
-            if (btnCharBack) {
-                btnCharBack.addEventListener('click', () => {
-                    // Сбрасываем характеристики при возврате
-                    window.gameCharacter.resetStats();
-                    this.showScreen('register-screen');
-                });
-            }
-            
-            // Кнопка создания персонажа
-            const btnCreateCharacter = document.getElementById('btn-create-character');
-            if (btnCreateCharacter) {
-                btnCreateCharacter.addEventListener('click', () => {
-                    window.authSystem.completeCharacterCreation();
-                });
-            }
-            
-            // Кнопка выхода
-            const btnLogout = document.getElementById('btn-logout');
-            if (btnLogout) {
-                btnLogout.addEventListener('click', () => {
-                    window.authSystem.logout();
-                });
+            // Проверка никнейма в реальном времени
+            const nickname = document.getElementById('nickname');
+            if (nickname) {
+                nickname.addEventListener('input', () => this.validateNickname());
             }
         });
     }
     
     /**
-     * Показать определенный экран
+     * Обработка регистрации
      */
-    showScreen(screenId) {
-        // Скрываем все экраны
-        const screens = document.querySelectorAll('.screen');
-        screens.forEach(screen => {
-            screen.classList.remove('active');
-        });
+    handleRegister(e) {
+        e.preventDefault();
         
-        // Показываем нужный экран
-        const targetScreen = document.getElementById(screenId);
-        if (targetScreen) {
-            targetScreen.classList.add('active');
-            this.currentScreen = screenId;
-            
-            // Выполняем специфичные действия для экранов
-            this.onScreenShow(screenId);
-        }
-    }
-    
-    /**
-     * Действия при показе экрана
-     */
-    onScreenShow(screenId) {
-        switch (screenId) {
-            case 'character-screen':
-                // Обновляем отображение характеристик
-                window.gameCharacter.updateStatsDisplay();
-                break;
-                
-            case 'register-screen':
-                // Очищаем форму регистрации
-                this.clearForm('register-form');
-                break;
-                
-            case 'login-screen':
-                // Очищаем форму входа
-                this.clearForm('login-form');
-                break;
-                
-            case 'loading-screen':
-                // Очищаем временные данные
-                if (window.tempRegistrationData) {
-                    delete window.tempRegistrationData;
-                }
-                window.gameCharacter.resetStats();
-                break;
-        }
-    }
-    
-    /**
-     * Очистить форму
-     */
-    clearForm(formId) {
-        const form = document.getElementById(formId);
-        if (form) {
-            form.reset();
-            
-            // Сбрасываем стили валидации
-            const inputs = form.querySelectorAll('input');
-            inputs.forEach(input => {
-                input.style.borderColor = '#444';
-            });
-        }
-    }
-    
-    /**
-     * Проверка автоматического входа
-     */
-    checkAutoLogin() {
-        document.addEventListener('DOMContentLoaded', () => {
-            const currentUser = window.authSystem.getCurrentUser();
-            if (currentUser) {
-                // Если пользователь уже авторизован, показываем игровой экран
-                this.showScreen('game-screen');
-                window.authSystem.displayPlayerInfo(currentUser);
-            } else {
-                // Иначе показываем стартовый экран
-                this.showScreen('loading-screen');
-            }
-        });
-    }
-    
-    /**
-     * Показать уведомление
-     */
-    showNotification(message, type = 'info') {
-        // Простая реализация уведомлений
-        // В будущем можно заменить на более красивые
-        console.log(`[${type.toUpperCase()}] ${message}`);
+        const formData = new FormData(e.target);
+        const nickname = formData.get('nickname').trim();
+        const password = formData.get('password');
+        const passwordRepeat = formData.get('password-repeat');
+        const faction = formData.get('faction');
+        const gender = formData.get('gender');
         
-        // Показываем через alert пока что
-        if (type === 'error') {
-            alert(`Ошибка: ${message}`);
-        } else if (type === 'success') {
-            alert(`Успех: ${message}`);
+        // Валидация
+        const validation = this.validateRegistration(nickname, password, passwordRepeat, faction, gender);
+        if (!validation.isValid) {
+            this.showError(validation.message);
+            return;
         }
-    }
-    
-    /**
-     * Получить статистику игры
-     */
-    getGameStats() {
-        const users = window.authSystem.getUsers();
-        const workersCount = users.filter(user => user.faction === 'workers').length;
-        const creativesCount = users.filter(user => user.faction === 'creatives').length;
         
-        return {
-            totalUsers: users.length,
-            workersCount,
-            creativesCount,
-            currentUser: window.authSystem.getCurrentUser()
+        // Проверка существования пользователя
+        if (this.userExists(nickname)) {
+            this.showError('Пользователь с таким никнеймом уже существует!');
+            return;
+        }
+        
+        // Сохраняем данные регистрации во временном объекте
+        window.tempRegistrationData = {
+            nickname,
+            password,
+            faction,
+            gender
         };
+        
+        // Передаем данные в компонент персонажа
+        window.gameCharacter.setCharacterInfo(nickname, faction, gender);
+        
+        // Переходим к созданию персонажа
+        window.gameApp.showScreen('character-screen');
     }
     
     /**
-     * Дебаг информация
+     * Обработка входа
      */
-    getDebugInfo() {
-        return {
-            currentScreen: this.currentScreen,
-            gameStats: this.getGameStats(),
-            localStorage: {
-                users: localStorage.getItem('mmo_rpg_users'),
-                currentUser: localStorage.getItem('mmo_rpg_current_user')
-            }
+    handleLogin(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const nickname = formData.get('nickname').trim();
+        const password = formData.get('password');
+        
+        // Добавляем отладочную информацию
+        console.log('Попытка входа:', { nickname, password });
+        console.log('Сохраненные пользователи:', this.getUsers());
+        
+        const user = this.authenticateUser(nickname, password);
+        console.log('Результат аутентификации:', user);
+        
+        if (user) {
+            this.setCurrentUser(user);
+            console.log('Пользователь установлен, переходим в игру');
+            window.gameApp.showScreen('game-screen');
+            this.displayPlayerInfo(user);
+        } else {
+            this.showError('Неверный никнейм или пароль!');
+        }
+    }
+    
+    /**
+     * Валидация данных регистрации
+     */
+    validateRegistration(nickname, password, passwordRepeat, faction, gender) {
+        if (nickname.length < 3 || nickname.length > 20) {
+            return { isValid: false, message: 'Никнейм должен содержать от 3 до 20 символов' };
+        }
+        
+        if (!/^[a-zA-Zа-яА-Я0-9_-]+$/.test(nickname)) {
+            return { isValid: false, message: 'Никнейм может содержать только буквы, цифры, _ и -' };
+        }
+        
+        if (password.length < 6) {
+            return { isValid: false, message: 'Пароль должен содержать минимум 6 символов' };
+        }
+        
+        if (password !== passwordRepeat) {
+            return { isValid: false, message: 'Пароли не совпадают' };
+        }
+        
+        if (!faction) {
+            return { isValid: false, message: 'Выберите фракцию' };
+        }
+        
+        if (!gender) {
+            return { isValid: false, message: 'Выберите пол персонажа' };
+        }
+        
+        return { isValid: true };
+    }
+    
+    /**
+     * Проверка совпадения паролей
+     */
+    validatePasswordMatch() {
+        const password = document.getElementById('password').value;
+        const passwordRepeat = document.getElementById('password-repeat').value;
+        const repeatInput = document.getElementById('password-repeat');
+        
+        if (passwordRepeat && password !== passwordRepeat) {
+            repeatInput.style.borderColor = '#ff6b6b';
+        } else {
+            repeatInput.style.borderColor = '#444';
+        }
+    }
+    
+    /**
+     * Проверка никнейма
+     */
+    validateNickname() {
+        const nickname = document.getElementById('nickname').value.trim();
+        const nicknameInput = document.getElementById('nickname');
+        
+        if (nickname.length > 0 && !/^[a-zA-Zа-яА-Я0-9_-]+$/.test(nickname)) {
+            nicknameInput.style.borderColor = '#ff6b6b';
+        } else {
+            nicknameInput.style.borderColor = '#444';
+        }
+    }
+    
+    /**
+     * Проверка существования пользователя
+     */
+    userExists(nickname) {
+        const users = this.getUsers();
+        return users.some(user => user.nickname.toLowerCase() === nickname.toLowerCase());
+    }
+    
+    /**
+     * Аутентификация пользователя
+     */
+    authenticateUser(nickname, password) {
+        const users = this.getUsers();
+        return users.find(user => 
+            user.nickname.toLowerCase() === nickname.toLowerCase() && 
+            user.password === password
+        );
+    }
+    
+    /**
+     * Создание нового пользователя
+     */
+    createUser(characterData, password) {
+        const users = this.getUsers();
+        const newUser = {
+            ...characterData,
+            password: password,
+            id: this.generateUserId()
         };
+        
+        users.push(newUser);
+        this.saveUsers(users);
+        
+        return newUser;
+    }
+    
+    /**
+     * Получить всех пользователей из localStorage
+     */
+    getUsers() {
+        const users = localStorage.getItem(this.storageKey);
+        return users ? JSON.parse(users) : [];
+    }
+    
+    /**
+     * Сохранить пользователей в localStorage
+     */
+    saveUsers(users) {
+        localStorage.setItem(this.storageKey, JSON.stringify(users));
+    }
+    
+    /**
+     * Установить текущего пользователя
+     */
+    setCurrentUser(user) {
+        localStorage.setItem(this.currentUserKey, JSON.stringify(user));
+    }
+    
+    /**
+     * Получить текущего пользователя
+     */
+    getCurrentUser() {
+        const user = localStorage.getItem(this.currentUserKey);
+        return user ? JSON.parse(user) : null;
+    }
+    
+    /**
+     * Выход из системы
+     */
+    logout() {
+        localStorage.removeItem(this.currentUserKey);
+        window.gameApp.showScreen('loading-screen');
+    }
+    
+    /**
+     * Генерация уникального ID пользователя
+     */
+    generateUserId() {
+        return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+    
+    /**
+     * Показать ошибку
+     */
+    showError(message) {
+        // Простое показывание ошибки через alert
+        // В будущем можно заменить на красивые уведомления
+        alert(message);
+    }
+    
+    /**
+     * Показать информацию об игроке
+     */
+    displayPlayerInfo(user) {
+        const playerInfoElement = document.getElementById('player-info');
+        if (playerInfoElement) {
+            const factionName = user.faction === 'workers' ? 'Работяги' : 'Креаклы';
+            const genderName = user.gender === 'male' ? 'Мужской' : 'Женский';
+            
+            playerInfoElement.innerHTML = `
+                <h3>${user.nickname}</h3>
+                <p><strong>Фракция:</strong> ${factionName}</p>
+                <p><strong>Пол:</strong> ${genderName}</p>
+                <p><strong>Уровень:</strong> ${user.level}</p>
+                <p><strong>Опыт:</strong> ${user.experience}</p>
+                <p><strong>Здоровье:</strong> ${user.health}</p>
+                <p><strong>Мана:</strong> ${user.mana}</p>
+                <p><strong>Золото:</strong> ${user.gold}</p>
+                <hr>
+                <h4>Характеристики:</h4>
+                <p><strong>Сила:</strong> ${user.stats.str}</p>
+                <p><strong>Интеллект:</strong> ${user.stats.int}</p>
+                <p><strong>Харизма:</strong> ${user.stats.cha}</p>
+                <p><strong>Выносливость:</strong> ${user.stats.end}</p>
+                <p><strong>Реакция:</strong> ${user.stats.dex}</p>
+                <p><strong>Удача:</strong> ${user.stats.lck}</p>
+            `;
+        }
+    }
+    
+    /**
+     * Завершить создание персонажа
+     */
+    completeCharacterCreation() {
+        const tempData = window.tempRegistrationData;
+        const characterData = window.gameCharacter.getCharacterData();
+        
+        if (!tempData || !window.gameCharacter.isValid()) {
+            this.showError('Ошибка создания персонажа. Попробуйте еще раз.');
+            return false;
+        }
+        
+        // Создаем пользователя
+        const newUser = this.createUser(characterData, tempData.password);
+        
+        // Устанавливаем как текущего пользователя
+        this.setCurrentUser(newUser);
+        
+        // Очищаем временные данные
+        delete window.tempRegistrationData;
+        
+        // Переходим в игру
+        window.gameApp.showScreen('game-screen');
+        this.displayPlayerInfo(newUser);
+        
+        return true;
     }
 }
 
-// Создаем глобальный экземпляр приложения
-window.gameApp = new GameApp();
-
-// Добавляем глобальные функции для дебага (можно вызывать в консоли)
-window.debugGame = () => {
-    console.log('=== DEBUG INFO ===');
-    console.log(window.gameApp.getDebugInfo());
-};
-
-window.clearGameData = () => {
-    if (confirm('Удалить все данные игры? Это действие нельзя отменить!')) {
-        localStorage.removeItem('mmo_rpg_users');
-        localStorage.removeItem('mmo_rpg_current_user');
-        window.gameApp.showScreen('loading-screen');
-        alert('Данные игры очищены!');
-    }
-};
+// Создаем глобальный экземпляр системы авторизации
+window.authSystem = new AuthSystem();

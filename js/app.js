@@ -122,62 +122,111 @@ class GameApp {
      */
     initRegisterButton() {
         console.log('Инициализация кнопки регистрации...');
-        const btnContinueRegistration = document.getElementById('btn-continue-registration');
-        console.log('Кнопка найдена:', btnContinueRegistration);
         
-        if (btnContinueRegistration) {
-            // Удаляем старые обработчики
-            btnContinueRegistration.replaceWith(btnContinueRegistration.cloneNode(true));
-            const newBtn = document.getElementById('btn-continue-registration');
+        // Используем setTimeout чтобы элемент точно успел появиться в DOM
+        setTimeout(() => {
+            const btnContinueRegistration = document.getElementById('btn-continue-registration');
+            console.log('Кнопка найдена:', btnContinueRegistration);
             
-            newBtn.addEventListener('click', () => {
-                console.log('Кнопка Продолжить нажата');
+            if (btnContinueRegistration) {
+                // Убираем старые обработчики
+                const newBtn = btnContinueRegistration.cloneNode(true);
+                btnContinueRegistration.parentNode.replaceChild(newBtn, btnContinueRegistration);
                 
-                // Валидируем форму регистрации вручную
-                const form = document.getElementById('register-form');
-                if (form) {
-                    const formData = new FormData(form);
-                    const nickname = formData.get('nickname')?.trim();
-                    const password = formData.get('password');
-                    const passwordRepeat = formData.get('password-repeat');
-                    const faction = formData.get('faction');
-                    const gender = formData.get('gender');
+                newBtn.addEventListener('click', () => {
+                    console.log('Кнопка Продолжить нажата');
                     
-                    console.log('Данные формы:', { nickname, password, passwordRepeat, faction, gender });
-                    
-                    // Валидация
-                    const validation = window.authSystem.validateRegistration(nickname, password, passwordRepeat, faction, gender);
-                    if (!validation.isValid) {
-                        window.authSystem.showError(validation.message);
-                        return;
+                    try {
+                        // Валидируем форму регистрации вручную
+                        const form = document.getElementById('register-form');
+                        if (!form) {
+                            console.error('Форма регистрации не найдена');
+                            return;
+                        }
+                        
+                        const formData = new FormData(form);
+                        const nickname = formData.get('nickname')?.trim() || '';
+                        const password = formData.get('password') || '';
+                        const passwordRepeat = formData.get('password-repeat') || '';
+                        const faction = formData.get('faction') || '';
+                        const gender = formData.get('gender') || '';
+                        
+                        console.log('Данные формы:', { nickname, password, passwordRepeat, faction, gender });
+                        
+                        // Простая валидация
+                        if (nickname.length < 3) {
+                            alert('Никнейм должен содержать минимум 3 символа');
+                            return;
+                        }
+                        
+                        if (password.length < 6) {
+                            alert('Пароль должен содержать минимум 6 символов');
+                            return;
+                        }
+                        
+                        if (password !== passwordRepeat) {
+                            alert('Пароли не совпадают');
+                            return;
+                        }
+                        
+                        if (!faction) {
+                            alert('Выберите фракцию');
+                            return;
+                        }
+                        
+                        if (!gender) {
+                            alert('Выберите пол персонажа');
+                            return;
+                        }
+                        
+                        // Проверка существования пользователя
+                        if (window.authSystem && window.authSystem.userExists(nickname)) {
+                            alert('Пользователь с таким никнеймом уже существует!');
+                            return;
+                        }
+                        
+                        // Создаем персонажа
+                        const characterData = {
+                            nickname: nickname,
+                            faction: faction,
+                            gender: gender,
+                            stats: { str: 1, int: 1, cha: 1, end: 1, dex: 1, lck: 1 },
+                            level: 1,
+                            experience: 0,
+                            health: 105, // 100 + 1*5
+                            mana: 55,    // 50 + 1*5
+                            gold: 100,
+                            inventory: [],
+                            createdAt: new Date().toISOString()
+                        };
+                        
+                        console.log('Создаем персонажа:', characterData);
+                        
+                        // Создаем пользователя
+                        if (window.authSystem) {
+                            const newUser = window.authSystem.createUser(characterData, password);
+                            window.authSystem.setCurrentUser(newUser);
+                            
+                            console.log('Пользователь создан:', newUser);
+                            
+                            // Переходим в игру
+                            this.showScreen('game-screen');
+                            window.authSystem.displayPlayerInfo(newUser);
+                        } else {
+                            console.error('authSystem не найден');
+                        }
+                        
+                    } catch (error) {
+                        console.error('Ошибка при создании персонажа:', error);
+                        alert('Произошла ошибка при создании персонажа');
                     }
-                    
-                    // Проверка существования пользователя
-                    if (window.authSystem.userExists(nickname)) {
-                        window.authSystem.showError('Пользователь с таким никнеймом уже существует!');
-                        return;
-                    }
-                    
-                    // Создаем персонажа сразу
-                    window.gameCharacter.setCharacterInfo(nickname, faction, gender);
-                    const characterData = window.gameCharacter.getCharacterData();
-                    
-                    // Создаем пользователя
-                    const newUser = window.authSystem.createUser(characterData, password);
-                    window.authSystem.setCurrentUser(newUser);
-                    
-                    console.log('Пользователь создан и авторизован:', newUser);
-                    
-                    // Переходим сразу в игру
-                    this.showScreen('game-screen');
-                    window.authSystem.displayPlayerInfo(newUser);
-                }
-            });
-            
-            console.log('Обработчик события добавлен к кнопке');
-        } else {
-            console.error('Кнопка btn-continue-registration не найдена!');
-        }
+                });
+                
+                console.log('Обработчик события добавлен к кнопке');
+            } else {
+                console.error('Кнопка btn-continue-registration не найдена!');
+            }
+        }, 100);
     }
     
     /**

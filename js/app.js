@@ -62,9 +62,19 @@ class GameApp {
             }
             
             // Кнопка тренировки (переход в спортзал)
-            const btnTrain = document.querySelector('.train-btn');
+            const btnTrain = document.getElementById('train-btn');
             if (btnTrain) {
                 btnTrain.addEventListener('click', () => this.showGym());
+            }
+            
+            // Кнопка арены
+            const arenaBtn = document.getElementById('arena-btn');
+            if (arenaBtn) {
+                arenaBtn.addEventListener('click', () => {
+                    if (window.battleSystem) {
+                        window.battleSystem.showArena();
+                    }
+                });
             }
             
             // Кнопка возврата из спортзала
@@ -258,27 +268,33 @@ class GameApp {
                         
                         // Валидация
                         if (nickname.length < 3) {
+                            alert('Никнейм должен содержать минимум 3 символа');
                             return;
                         }
                         
                         if (password.length < 6) {
+                            alert('Пароль должен содержать минимум 6 символов');
                             return;
                         }
                         
                         if (password !== passwordRepeat) {
+                            alert('Пароли не совпадают');
                             return;
                         }
                         
                         if (!faction) {
+                            alert('Выберите фракцию');
                             return;
                         }
                         
                         if (!gender) {
+                            alert('Выберите пол персонажа');
                             return;
                         }
                         
                         // Проверка существования пользователя
                         if (window.authSystem && window.authSystem.userExists(nickname)) {
+                            alert('Пользователь с таким никнеймом уже существует');
                             return;
                         }
                         
@@ -298,6 +314,8 @@ class GameApp {
                             // Переходим в игру
                             this.showScreen('game-screen');
                             window.authSystem.displayPlayerInfo(newUser);
+                            
+                            alert('Персонаж создан успешно!');
                         } else {
                             console.error('authSystem не найден');
                         }

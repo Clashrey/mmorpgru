@@ -16,19 +16,15 @@ class BattleSystem {
      */
     initializeEventListeners() {
         document.addEventListener('DOMContentLoaded', () => {
-            // Кнопка арены в основном интерфейсе
+            // Обработчики с задержкой для корректной инициализации
             setTimeout(() => {
-                const arenaBtn = document.querySelector('.action-btn');
-                if (arenaBtn && arenaBtn.textContent.includes('Арена')) {
-                    arenaBtn.addEventListener('click', () => this.showArena());
-                }
-                
                 // Кнопки в арене
                 const findPlayerBtn = document.getElementById('find-player-btn');
                 const findMobBtn = document.getElementById('find-mob-btn');
                 const startFightBtn = document.getElementById('start-fight-btn');
                 const continueBtn = document.getElementById('continue-btn');
                 const arenaBackBtn = document.getElementById('arena-back-btn');
+                const gymBackBtn = document.getElementById('gym-back-btn');
                 
                 if (findPlayerBtn) {
                     findPlayerBtn.addEventListener('click', () => this.findOpponent('player'));
@@ -49,6 +45,20 @@ class BattleSystem {
                 if (arenaBackBtn) {
                     arenaBackBtn.addEventListener('click', () => this.backToGame());
                 }
+                
+                if (gymBackBtn) {
+                    gymBackBtn.addEventListener('click', () => this.backToGame());
+                }
+                
+                // Кнопки тренировок в спортзале
+                document.querySelectorAll('.upgrade-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const stat = e.target.dataset.stat;
+                        if (window.gameApp && window.gameApp.trainStat) {
+                            window.gameApp.trainStat(stat);
+                        }
+                    });
+                });
             }, 500);
         });
     }
@@ -434,96 +444,3 @@ class BattleSystem {
         document.getElementById('reward-gold').textContent = battle.rewards.gold >= 0 ? `+${battle.rewards.gold}` : battle.rewards.gold;
         
         // Применяем награды к игроку
-        this.applyRewards();
-        
-        outcomeDiv.style.display = 'block';
-    }
-    
-    /**
-     * Применить награды
-     */
-    applyRewards() {
-        const currentUser = window.authSystem.getCurrentUser();
-        const battle = this.currentBattle;
-        
-        if (!currentUser || !battle.rewards) return;
-        
-        // Применяем опыт
-        if (battle.rewards.exp > 0) {
-            currentUser.experience = (currentUser.experience || 0) + battle.rewards.exp;
-            
-            // Проверяем повышение уровня
-            const requiredExp = (currentUser.level || 1) * 100;
-            if (currentUser.experience >= requiredExp) {
-                currentUser.level = (currentUser.level || 1) + 1;
-                currentUser.experience = 0;
-                
-                // Повышаем все статы на 1
-                Object.keys(currentUser.stats).forEach(stat => {
-                    currentUser.stats[stat] += 1;
-                });
-                
-                // Даем 50 золота за повышение уровня
-                currentUser.gold = (currentUser.gold || 0) + 50;
-                
-                // Пересчитываем здоровье
-                currentUser.health = 50 + currentUser.stats.end * 10;
-            }
-        }
-        
-        // Применяем золото
-        currentUser.gold = Math.max(0, (currentUser.gold || 0) + battle.rewards.gold);
-        
-        // Сохраняем изменения
-        const users = window.authSystem.getUsers();
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        if (userIndex !== -1) {
-            users[userIndex] = currentUser;
-            window.authSystem.saveUsers(users);
-            window.authSystem.setCurrentUser(currentUser);
-        }
-        
-        console.log('Награды применены:', battle.rewards);
-    }
-    
-    /**
-     * Вернуться в арену
-     */
-    returnToArena() {
-        this.currentBattle = null;
-        
-        // Обновляем отображение игрока с новыми характеристиками
-        const currentUser = window.authSystem.getCurrentUser();
-        this.updateArenaDisplay(currentUser);
-        
-        // Обновляем основной интерфейс
-        window.authSystem.displayPlayerInfo(currentUser);
-    }
-    
-    /**
-     * Вернуться в игру
-     */
-    backToGame() {
-        window.gameApp.showScreen('game-screen');
-    }
-}
-
-// Создаем глобальный экземпляр боевой системы
-if (!window.battleSystem) {
-    window.battleSystem = new BattleSystem();
-}
-
-// Функция для отладки боя
-window.debugBattle = () => {
-    const currentUser = window.authSystem.getCurrentUser();
-    if (currentUser) {
-        const stats = window.battleSystem.calculateBattleStats(currentUser);
-        console.log('=== БОЕВЫЕ ХАРАКТЕРИСТИКИ ===');
-        console.log('HP:', stats.hp);
-        console.log('Атака:', stats.attack);
-        console.log('Защита:', stats.defense);
-        console.log('Шанс уворота:', stats.dodgeChance + '%');
-        console.log('Шанс двойного удара:', stats.doubleHitChance + '%');
-        console.log('Скорость:', stats.speed);
-    }
-};

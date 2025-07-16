@@ -265,7 +265,6 @@ class AuthSystem {
         }
         
         // Заполняем информацию
-        document.getElementById('game-nickname').textContent = user.nickname || 'Игрок';
         document.getElementById('character-display-name').textContent = user.nickname || 'Игрок';
         document.getElementById('game-level').textContent = user.level || 1;
         document.getElementById('game-experience').textContent = user.experience || 0;
@@ -275,7 +274,7 @@ class AuthSystem {
         
         // Отображаем фракцию
         const factionName = user.faction === 'workers' ? 'Работяги' : 'Креаклы';
-        document.getElementById('game-faction').textContent = factionName;
+        document.getElementById('character-faction-badge').textContent = factionName;
         
         // Устанавливаем эмодзи аватара в зависимости от фракции и пола
         const avatarElement = document.getElementById('character-avatar-text');

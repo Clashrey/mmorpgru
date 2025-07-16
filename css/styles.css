@@ -253,10 +253,10 @@ body {
 /* ===== ВЕРХНЯЯ ЗОНА: ПЕРСОНАЖ ===== */
 .character-zone {
     display: grid;
-    grid-template-columns: 200px 1fr 200px;
+    grid-template-columns: 220px 1fr 220px;
     gap: 20px;
     margin-bottom: 20px;
-    min-height: 220px;
+    min-height: 200px;
 }
 
 /* ===== ЛЕВАЯ КОЛОНКА: ХАРАКТЕРИСТИКИ ===== */
@@ -323,60 +323,27 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 25px;
-    background: #3a3f5b;
-    border-radius: 8px;
-    border: 1px solid #8d99ae;
-    position: relative;
+    justify-content: space-between;
+    padding: 20px;
 }
 
 .character-avatar {
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.avatar-circle {
-    width: 120px;
-    height: 120px;
+    width: 100%;
+    height: 50%;
     background: linear-gradient(45deg, #5e60ce, #8d99ae);
-    border-radius: 50%;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 15px;
-    border: 4px solid #edf2f4;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-    font-size: 3.5rem;
+    border: 3px solid #edf2f4;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    font-size: 4rem;
     transition: transform 0.2s ease;
+    margin-bottom: 15px;
 }
 
-.avatar-circle:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-}
-
-.character-avatar h2 {
-    color: #edf2f4;
-    margin: 0 0 8px 0;
-    font-size: 20px;
-    font-weight: 700;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-}
-
-.faction-badge {
-    background: rgba(94, 96, 206, 0.2);
-    border: 1px solid #5e60ce;
-    border-radius: 15px;
-    padding: 4px 12px;
-    display: inline-block;
-    margin-bottom: 20px;
-}
-
-.faction-badge span {
-    color: #5e60ce;
-    font-size: 13px;
-    font-weight: 600;
+.character-avatar:hover {
+    transform: scale(1.02);
 }
 
 .action-buttons {
@@ -384,16 +351,15 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 8px;
     width: 100%;
-    max-width: 200px;
 }
 
 .action-btn {
     background: #5e60ce;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 8px 12px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -403,7 +369,6 @@ body {
 .action-btn:hover {
     background: #4a4ebd;
     transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 
 /* ===== ПРАВАЯ КОЛОНКА: ИНФОРМАЦИЯ ===== */
@@ -473,7 +438,13 @@ body {
     border: 1px solid rgba(255, 206, 86, 0.3);
 }
 
-.info-value:not(.health):not(.mana):not(.gold) {
+.info-value.faction {
+    background: rgba(153, 102, 255, 0.1);
+    color: #9966ff;
+    border: 1px solid rgba(153, 102, 255, 0.3);
+}
+
+.info-value:not(.health):not(.mana):not(.gold):not(.faction) {
     background: rgba(94, 96, 206, 0.1);
     color: #5e60ce;
     border: 1px solid rgba(94, 96, 206, 0.3);

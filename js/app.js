@@ -510,3 +510,32 @@ window.clearGameData = () => {
         alert('Данные игры очищены!');
     }
 };
+// Дополнительная инициализация кнопки арены с задержкой
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const arenaBtn = document.getElementById('arena-btn');
+        if (arenaBtn) {
+            // Убираем все старые обработчики
+            arenaBtn.replaceWith(arenaBtn.cloneNode(true));
+            const newArenaBtn = document.getElementById('arena-btn');
+            
+            newArenaBtn.addEventListener('click', () => {
+                console.log('Кнопка арены нажата!');
+                
+                if (window.battleSystem && window.battleSystem.showArena) {
+                    window.battleSystem.showArena();
+                } else {
+                    console.error('BattleSystem не найден!');
+                    // Fallback - показываем арену напрямую
+                    if (window.gameApp) {
+                        window.gameApp.showScreen('arena-screen');
+                    }
+                }
+            });
+            
+            console.log('Обработчик арены добавлен успешно!');
+        } else {
+            console.error('Кнопка арены не найдена!');
+        }
+    }, 1000);
+});

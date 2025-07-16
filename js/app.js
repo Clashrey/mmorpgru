@@ -143,6 +143,94 @@ class GameApp {
     }
     
     /**
+     * Показать спортзал
+     */
+    showGym() {
+        const currentUser = window.authSystem.getCurrentUser();
+        if (!currentUser) {
+            alert('Ошибка: пользователь не найден');
+            return;
+        }
+        
+        // Переходим в спортзал
+        this.showScreen('gym-screen');
+        this.updateGymDisplay(currentUser);
+    }
+    
+    /**
+     * Обновить отображение спортзала
+     */
+    updateGymDisplay(user) {
+        // Обновляем информацию об игроке
+        document.getElementById('gym-player-name').textContent = user.nickname;
+        document.getElementById('gym-player-level').textContent = user.level || 1;
+        document.getElementById('gym-player-health').textContent = user.stats ? (50 + user.stats.end * 10) : user.health;
+        document.getElementById('gym-player-gold').textContent = user.gold || 0;
+        
+        // Обновляем характеристики
+        if (user.stats) {
+            document.getElementById('gym-stat-str').textContent = user.stats.str;
+            document.getElementById('gym-stat-end').textContent = user.stats.end;
+            document.getElementById('gym-stat-dex').textContent = user.stats.dex;
+            document.getElementById('gym-stat-int').textContent = user.stats.int;
+            document.getElementById('gym-stat-cha').textContent = user.stats.cha;
+            document.getElementById('gym-stat-lck').textContent = user.stats.lck;
+        }
+        
+        // Обновляем стоимость тренировок
+        this.updateTrainingCosts(user);
+    }
+    
+    /**
+     * Обновить стоимость тренировок
+     */
+    updateTrainingCosts(user) {
+        const baseCosts = {
+            str: 2.0,   // Самый дорогой
+            end: 1.7,   // Второй по дороговизне
+            dex: 1.2,   // Средний
+            lck: 1.1,   // Чуть дороже базы
+            int: 1.0,   // Базовая цена
+            cha: 0.8    // Дешевый
+        };
+        
+        Object.keys(baseCosts).forEach(stat => {
+            const currentLevel = user.stats[stat];
+            const cost = Math.floor(baseCosts[stat] * Math.pow(currentLevel, 1.5) * 10);
+            
+            const costElement = document.getElementById(`gym-cost-${stat}`);
+            const buttonElement = document.querySelector(`[data-stat="${stat}"]`);
+            
+            if (costElement) {
+                costElement.textContent = `${cost} 💰`;
+                
+                // Меняем цвет если дорого
+                if (cost > user.gold) {
+                    costElement.classList.add('expensive');
+                    if (buttonElement) {
+                        buttonElement.disabled = true;
+                        buttonElement.textContent = 'Недостаточно золота';
+                    }
+                } else {
+                    costElement.classList.remove('expensive');
+                    if (buttonElement) {
+                        buttonElement.disabled = false;
+                        const statNames = {
+                            str: 'силу',
+                            end: 'выносливость', 
+                            dex: 'реакцию',
+                            int: 'интеллект',
+                            cha: 'харизму',
+                            lck: 'удачу'
+                        };
+                        buttonElement.textContent = `Тренировать ${statNames[stat]}`;
+                    }
+                }
+            }
+        });
+    }
+    
+    /**
      * Инициализация кнопки регистрации с новой системой характеристик
      */
     initRegisterButton() {
@@ -238,109 +326,6 @@ class GameApp {
                 console.error('Кнопка btn-continue-registration не найдена!');
             }
         }, 100);
-    }
-    
-    /**
-     * Показать спортзал
-     */
-    showGym() {
-        const currentUser = window.authSystem.getCurrentUser();
-        if (!currentUser) {
-            alert('Ошибка: пользователь не найден');
-            return;
-        }
-        
-        // Переходим в спортзал
-        this.showScreen('gym-screen');
-        this.updateGymDisplay(currentUser);
-    }
-    
-    /**
-     * Обновить отображение спортзала
-     */
-    updateGymDisplay(user) {
-        // Обновляем информацию об игроке
-        document.getElementById('gym-player-name').textContent = user.nickname;
-        document.getElementById('gym-player-level').textContent = user.level || 1;
-        document.getElementById('gym-player-health').textContent = user.stats ? (50 + user.stats.end * 10) : user.health;
-        document.getElementById('gym-player-gold').textContent = user.gold || 0;
-        
-        // Обновляем характеристики
-        if (user.stats) {
-            document.getElementById('gym-stat-str').textContent = user.stats.str;
-            document.getElementById('gym-stat-end').textContent = user.stats.end;
-            document.getElementById('gym-stat-dex').textContent = user.stats.dex;
-            document.getElementById('gym-stat-int').textContent = user.stats.int;
-            document.getElementById('gym-stat-cha').textContent = user.stats.cha;
-            document.getElementById('gym-stat-lck').textContent = user.stats.lck;
-        }
-        
-        // Обновляем стоимость тренировок
-        this.updateTrainingCosts(user);
-    }
-    
-    /**
-     * Обновить стоимость тренировок
-     */
-    updateTrainingCosts(user) {
-        const baseCosts = {
-            str: 2.0,   // Самый дорогой
-            end: 1.7,   // Второй по дороговизне
-            dex: 1.2,   // Средний
-            lck: 1.1,   // Чуть дороже базы
-            int: 1.0,   // Базовая цена
-            cha: 0.8    // Дешевый
-        };
-        
-        Object.keys(baseCosts).forEach(stat => {
-            const currentLevel = user.stats[stat];
-            const cost = Math.floor(baseCosts[stat] * Math.pow(currentLevel, 1.5) * 10);
-            
-            const costElement = document.getElementById(`gym-cost-${stat}`);
-            const buttonElement = document.querySelector(`[data-stat="${stat}"]`);
-            
-            if (costElement) {
-                costElement.textContent = `${cost} 💰`;
-                
-                // Меняем цвет если дорого
-                if (cost > user.gold) {
-                    costElement.classList.add('expensive');
-                    if (buttonElement) {
-                        buttonElement.disabled = true;
-                        buttonElement.textContent = 'Недостаточно золота';
-                    }
-                } else {
-                    costElement.classList.remove('expensive');
-                    if (buttonElement) {
-                        buttonElement.disabled = false;
-                        const statNames = {
-                            str: 'силу',
-                            end: 'выносливость', 
-                            dex: 'реакцию',
-                            int: 'интеллект',
-                            cha: 'харизму',
-                            lck: 'удачу'
-                        };
-                        buttonElement.textContent = `Тренировать ${statNames[stat]}`;
-                    }
-                }
-            }
-        });
-    }
-    
-    /**
-     * Показать опции тренировки (устаревшая функция, заменена спортзалом)
-     */
-    showTrainingOptions() {
-        // Перенаправляем в спортзал
-        this.showGym();
-    }(options + '\nВведите номер (1-6):');
-        
-        if (choice && choice >= 1 && choice <= 6) {
-            const statKeys = Object.keys(statsNames);
-            const selectedStat = statKeys[choice - 1];
-            this.trainStat(selectedStat);
-        }
     }
     
     /**

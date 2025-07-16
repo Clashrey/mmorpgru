@@ -196,8 +196,10 @@ class Character {
     }
 }
 
-// Создаем глобальный экземпляр персонажа
-window.gameCharacter = new Character();
+// Создаем глобальный экземпляр персонажа только если его еще нет
+if (!window.gameCharacter) {
+    window.gameCharacter = new Character();
+}
 
 // Добавляем функцию для отладки характеристик (можно вызывать в консоли)
 window.debugCharacterStats = () => {

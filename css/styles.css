@@ -6,9 +6,9 @@
 }
 
 body {
-    font-family: 'Courier New', monospace;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    color: #eee;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #1e1e2f 0%, #2b2d42 100%);
+    color: #edf2f4;
     min-height: 100vh;
     overflow-x: hidden;
 }
@@ -34,8 +34,9 @@ body {
 
 .logo h1 {
     font-size: 3rem;
+    font-weight: 700;
     margin-bottom: 10px;
-    background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+    background: linear-gradient(45deg, #8d99ae, #edf2f4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -45,7 +46,7 @@ body {
 .logo p {
     font-size: 1.2rem;
     margin-bottom: 40px;
-    color: #ccc;
+    color: #8d99ae;
 }
 
 .menu {
@@ -56,66 +57,63 @@ body {
     width: 100%;
 }
 
-/* ===== КНОПКИ ===== */
+/* ===== СОВРЕМЕННЫЕ КНОПКИ ===== */
 .btn-primary, .btn-secondary {
-    padding: 15px 30px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 8px;
-    font-family: 'Courier New', monospace;
-    font-size: 1rem;
+    border-radius: 10px;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    font-weight: bold;
-    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    background: #5e60ce;
     color: white;
-    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
 }
 
 .btn-primary:hover {
+    background: #4a4ebd;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
 }
 
 .btn-primary:disabled {
-    background: #666;
+    background: #6c757d;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
 }
 
 .btn-secondary {
-    background: transparent;
-    color: #4ecdc4;
-    border: 2px solid #4ecdc4;
+    background: #8d99ae;
+    color: white;
 }
 
 .btn-secondary:hover {
-    background: #4ecdc4;
-    color: #1a1a2e;
+    background: #748391;
     transform: translateY(-2px);
 }
 
 /* ===== ФОРМЫ ===== */
 .form-container, .character-container {
-    background: rgba(22, 33, 62, 0.9);
+    background: rgba(43, 45, 66, 0.95);
     border-radius: 15px;
     padding: 40px;
     max-width: 600px;
     width: 100%;
-    border: 1px solid #4ecdc4;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid #8d99ae;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
 .form-container h2, .character-container h2 {
     text-align: center;
     margin-bottom: 30px;
-    color: #4ecdc4;
-    font-size: 1.8rem;
+    color: #edf2f4;
+    font-size: 24px;
+    font-weight: 700;
 }
 
 .input-group {
@@ -125,31 +123,31 @@ body {
 .input-group label {
     display: block;
     margin-bottom: 8px;
-    color: #ccc;
-    font-weight: bold;
+    color: #8d99ae;
+    font-weight: 600;
 }
 
 .input-group input {
     width: 100%;
     padding: 12px 15px;
-    border: 2px solid #444;
-    border-radius: 8px;
-    background: #2a2a3e;
-    color: #eee;
-    font-family: 'Courier New', monospace;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
+    border: 2px solid #3a3f5b;
+    border-radius: 10px;
+    background: #2b2d42;
+    color: #edf2f4;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    font-size: 16px;
+    transition: border-color 0.2s ease;
 }
 
 .input-group input:focus {
     outline: none;
-    border-color: #4ecdc4;
-    box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+    border-color: #5e60ce;
+    box-shadow: 0 0 0 3px rgba(94, 96, 206, 0.1);
 }
 
 .input-hint {
-    font-size: 0.9rem;
-    color: #999;
+    font-size: 14px;
+    color: #8d99ae;
     margin-top: 5px;
 }
 
@@ -160,7 +158,8 @@ body {
 
 .choice-group h3 {
     margin-bottom: 15px;
-    color: #4ecdc4;
+    color: #edf2f4;
+    font-weight: 600;
 }
 
 .faction-choice {
@@ -173,7 +172,7 @@ body {
     flex: 1;
     min-width: 250px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .faction-card input[type="radio"] {
@@ -182,34 +181,35 @@ body {
 
 .faction-info {
     padding: 20px;
-    border: 2px solid #444;
+    border: 2px solid #3a3f5b;
     border-radius: 10px;
-    background: #2a2a3e;
+    background: #2b2d42;
     text-align: center;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .faction-card:hover .faction-info {
-    border-color: #4ecdc4;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(78, 205, 196, 0.2);
+    border-color: #8d99ae;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .faction-card input[type="radio"]:checked + .faction-info {
-    border-color: #ff6b6b;
-    background: rgba(255, 107, 107, 0.1);
-    box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+    border-color: #5e60ce;
+    background: rgba(94, 96, 206, 0.1);
+    box-shadow: 0 0 0 3px rgba(94, 96, 206, 0.1);
 }
 
 .faction-info h4 {
-    color: #ff6b6b;
+    color: #edf2f4;
     margin-bottom: 10px;
-    font-size: 1.2rem;
+    font-size: 18px;
+    font-weight: 600;
 }
 
 .faction-info p {
-    color: #ccc;
-    font-size: 0.9rem;
+    color: #8d99ae;
+    font-size: 14px;
     line-height: 1.4;
 }
 
@@ -223,137 +223,20 @@ body {
     display: flex;
     align-items: center;
     cursor: pointer;
-    padding: 10px 20px;
-    border: 2px solid #444;
-    border-radius: 8px;
-    background: #2a2a3e;
-    transition: all 0.3s ease;
+    padding: 12px 20px;
+    border: 2px solid #3a3f5b;
+    border-radius: 10px;
+    background: #2b2d42;
+    transition: all 0.2s ease;
+    font-weight: 600;
 }
 
 .gender-choice label:hover {
-    border-color: #4ecdc4;
-}
-
-.gender-choice input[type="radio"] {
-    margin-right: 10px;
+    border-color: #8d99ae;
 }
 
 .gender-choice input[type="radio"]:checked + span {
-    color: #ff6b6b;
-}
-
-/* ===== ХАРАКТЕРИСТИКИ ===== */
-.character-info {
-    margin-bottom: 30px;
-    padding: 20px;
-    background: rgba(42, 42, 62, 0.5);
-    border-radius: 10px;
-    border: 1px solid #444;
-}
-
-.character-info h3 {
-    color: #ff6b6b;
-    margin-bottom: 10px;
-}
-
-.character-info p {
-    color: #ccc;
-    margin: 5px 0;
-}
-
-.stats-points {
-    text-align: center;
-    margin-top: 15px;
-}
-
-.stats-points h4 {
-    color: #4ecdc4;
-}
-
-.stats-points span {
-    color: #ff6b6b;
-    font-weight: bold;
-    font-size: 1.2rem;
-}
-
-.stats-container {
-    margin-bottom: 30px;
-}
-
-.stat-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    margin-bottom: 10px;
-    background: rgba(42, 42, 62, 0.5);
-    border-radius: 8px;
-    border: 1px solid #444;
-    transition: all 0.3s ease;
-}
-
-.stat-item:hover {
-    border-color: #4ecdc4;
-    transform: translateX(5px);
-}
-
-.stat-info h4 {
-    color: #4ecdc4;
-    margin-bottom: 5px;
-    font-size: 1rem;
-}
-
-.stat-info p {
-    color: #999;
-    font-size: 0.9rem;
-    font-style: italic;
-}
-
-.stat-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.stat-btn {
-    width: 35px;
-    height: 35px;
-    border: 2px solid #4ecdc4;
-    background: transparent;
-    color: #4ecdc4;
-    border-radius: 50%;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.stat-btn:hover {
-    background: #4ecdc4;
-    color: #1a1a2e;
-    transform: scale(1.1);
-}
-
-.stat-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.stat-value {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #ff6b6b;
-    min-width: 30px;
-    text-align: center;
-}
-
-/* ===== ДЕЙСТВИЯ ФОРМЫ ===== */
-.form-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 30px;
+    color: #5e60ce;
 }
 
 /* ===== ИГРОВОЙ ИНТЕРФЕЙС ===== */
@@ -365,68 +248,71 @@ body {
     min-height: calc(100vh - 200px);
 }
 
-/* Левая панель - Характеристики */
+/* ===== ЛЕВАЯ ПАНЕЛЬ - ХАРАКТЕРИСТИКИ ===== */
 .stats-panel {
-    background: linear-gradient(145deg, #8B4513, #A0522D);
-    border-radius: 15px;
+    background: rgba(43, 45, 66, 0.95);
+    border-radius: 10px;
     padding: 20px;
-    border: 3px solid #DAA520;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    border: 1px solid #3a3f5b;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
 .stats-panel h3 {
-    color: #FFD700;
+    color: #edf2f4;
     text-align: center;
     margin-bottom: 20px;
-    font-size: 1.3rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    font-size: 18px;
+    font-weight: 700;
 }
 
 .stats-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 .stat-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
-    background: rgba(139, 69, 19, 0.3);
+    padding: 12px 16px;
+    background: #3a3f5b;
     border-radius: 8px;
-    border: 1px solid #CD853F;
-    transition: all 0.3s ease;
+    border: 1px solid #8d99ae;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .stat-row:hover {
-    background: rgba(139, 69, 19, 0.5);
-    transform: translateX(5px);
+    background: #484d6b;
+    transform: translateX(4px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .stat-name {
-    color: #F5DEB3;
-    font-size: 0.9rem;
-    font-weight: bold;
+    color: #edf2f4;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .stat-value {
-    color: #FFD700;
-    font-size: 1.1rem;
-    font-weight: bold;
-    background: rgba(255, 215, 0, 0.1);
+    color: #5e60ce;
+    font-size: 16px;
+    font-weight: 700;
+    background: rgba(94, 96, 206, 0.1);
     padding: 4px 8px;
-    border-radius: 4px;
-    border: 1px solid #DAA520;
+    border-radius: 6px;
+    min-width: 30px;
+    text-align: center;
 }
 
-/* Центральная панель - Персонаж */
+/* ===== ЦЕНТРАЛЬНАЯ ПАНЕЛЬ - ПЕРСОНАЖ ===== */
 .character-display {
-    background: linear-gradient(145deg, #2F4F4F, #2F4F4F);
-    border-radius: 15px;
+    background: rgba(43, 45, 66, 0.95);
+    border-radius: 10px;
     padding: 30px;
-    border: 3px solid #4682B4;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    border: 1px solid #3a3f5b;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -440,138 +326,150 @@ body {
 }
 
 .avatar-placeholder {
-    width: 150px;
-    height: 150px;
-    background: linear-gradient(45deg, #4682B4, #5F9EA0);
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(45deg, #5e60ce, #8d99ae);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 15px;
-    border: 4px solid #FFD700;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    font-size: 4rem;
+    border: 3px solid #edf2f4;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    font-size: 3rem;
+    transition: transform 0.2s ease;
+}
+
+.avatar-placeholder:hover {
+    transform: scale(1.05);
 }
 
 .character-name-display h2 {
-    color: #FFD700;
+    color: #edf2f4;
     margin: 0;
-    font-size: 1.8rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    font-size: 20px;
+    font-weight: 700;
 }
 
 .equipment-slots {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    gap: 12px;
     margin-top: 20px;
 }
 
 .equipment-slot {
-    width: 60px;
-    height: 60px;
-    background: rgba(70, 130, 180, 0.2);
-    border: 2px solid #4682B4;
-    border-radius: 10px;
+    width: 50px;
+    height: 50px;
+    background: #3a3f5b;
+    border: 1px solid #8d99ae;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .equipment-slot:hover {
-    background: rgba(70, 130, 180, 0.4);
+    background: #484d6b;
     transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Правая панель - Информация */
+/* ===== ПРАВАЯ ПАНЕЛЬ - ИНФОРМАЦИЯ ===== */
 .info-panel {
-    background: linear-gradient(145deg, #8B0000, #A52A2A);
-    border-radius: 15px;
+    background: rgba(43, 45, 66, 0.95);
+    border-radius: 10px;
     padding: 20px;
-    border: 3px solid #FF6347;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    border: 1px solid #3a3f5b;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
 .info-panel h3 {
-    color: #FFD700;
+    color: #edf2f4;
     text-align: center;
     margin-bottom: 20px;
-    font-size: 1.3rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    font-size: 18px;
+    font-weight: 700;
 }
 
 .info-content {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 .info-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
-    background: rgba(139, 0, 0, 0.3);
+    padding: 12px 16px;
+    background: #3a3f5b;
     border-radius: 8px;
-    border: 1px solid #B22222;
-    transition: all 0.3s ease;
+    border: 1px solid #8d99ae;
+    transition: all 0.2s ease;
 }
 
 .info-row:hover {
-    background: rgba(139, 0, 0, 0.5);
-    transform: translateX(-5px);
+    background: #484d6b;
+    transform: translateX(-4px);
 }
 
 .info-label {
-    color: #F5DEB3;
-    font-size: 0.9rem;
-    font-weight: bold;
+    color: #edf2f4;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .info-value {
-    color: #FFD700;
-    font-size: 1rem;
-    font-weight: bold;
+    font-size: 14px;
+    font-weight: 700;
     padding: 4px 8px;
-    border-radius: 4px;
-    border: 1px solid #DAA520;
+    border-radius: 6px;
+    min-width: 40px;
+    text-align: center;
 }
 
 .info-value.health {
-    background: rgba(255, 0, 0, 0.1);
-    border-color: #FF0000;
-    color: #FF6B6B;
+    background: rgba(255, 99, 132, 0.1);
+    color: #ff6384;
+    border: 1px solid rgba(255, 99, 132, 0.3);
 }
 
 .info-value.mana {
-    background: rgba(0, 0, 255, 0.1);
-    border-color: #0000FF;
-    color: #4ECDC4;
+    background: rgba(54, 162, 235, 0.1);
+    color: #36a2eb;
+    border: 1px solid rgba(54, 162, 235, 0.3);
 }
 
 .info-value.gold {
-    background: rgba(255, 215, 0, 0.1);
-    border-color: #FFD700;
-    color: #FFD700;
+    background: rgba(255, 206, 86, 0.1);
+    color: #ffce56;
+    border: 1px solid rgba(255, 206, 86, 0.3);
 }
 
 .info-value.faction {
-    background: rgba(138, 43, 226, 0.1);
-    border-color: #8A2BE2;
-    color: #DDA0DD;
+    background: rgba(153, 102, 255, 0.1);
+    color: #9966ff;
+    border: 1px solid rgba(153, 102, 255, 0.3);
 }
 
-/* Инвентарь */
+.info-value:not(.health):not(.mana):not(.gold):not(.faction) {
+    background: rgba(94, 96, 206, 0.1);
+    color: #5e60ce;
+    border: 1px solid rgba(94, 96, 206, 0.3);
+}
+
+/* ===== ИНВЕНТАРЬ ===== */
 .inventory-section {
     margin-top: 20px;
-    background: linear-gradient(145deg, #556B2F, #6B8E23);
-    border-radius: 15px;
+    background: rgba(43, 45, 66, 0.95);
+    border-radius: 10px;
     padding: 20px;
-    border: 3px solid #9ACD32;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    border: 1px solid #3a3f5b;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
 .inventory-header {
@@ -582,36 +480,38 @@ body {
 }
 
 .inventory-header h3 {
-    color: #FFD700;
+    color: #edf2f4;
     margin: 0;
-    font-size: 1.3rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    font-size: 18px;
+    font-weight: 700;
 }
 
 .inventory-tabs {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .inventory-tab {
     padding: 8px 16px;
-    background: rgba(85, 107, 47, 0.5);
-    border: 2px solid #9ACD32;
+    background: #3a3f5b;
+    border: none;
     border-radius: 8px;
-    color: #F5DEB3;
+    color: #8d99ae;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
+    transition: all 0.2s ease;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
 }
 
 .inventory-tab:hover {
-    background: rgba(85, 107, 47, 0.8);
+    background: #484d6b;
+    color: #edf2f4;
 }
 
 .inventory-tab.active {
-    background: #9ACD32;
-    color: #2F4F2F;
+    background: #5e60ce;
+    color: white;
 }
 
 .inventory-grid {
@@ -623,20 +523,21 @@ body {
 .inventory-slot {
     width: 50px;
     height: 50px;
-    background: rgba(85, 107, 47, 0.3);
-    border: 2px solid #9ACD32;
+    background: #3a3f5b;
+    border: 1px solid #8d99ae;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     position: relative;
 }
 
 .inventory-slot:hover {
-    background: rgba(85, 107, 47, 0.6);
+    background: #484d6b;
     transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .inventory-slot.empty:after {
@@ -645,7 +546,7 @@ body {
     font-size: 1.2rem;
 }
 
-/* Кнопки управления */
+/* ===== КНОПКИ УПРАВЛЕНИЯ ===== */
 .game-controls {
     position: fixed;
     top: 20px;
@@ -653,10 +554,17 @@ body {
     z-index: 100;
 }
 
-/* Адаптивность для игрового интерфейса */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+/* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 1200px) {
     .character-interface {
-        grid-template-columns: 250px 1fr 250px;
+        grid-template-columns: 280px 1fr 280px;
         gap: 15px;
         padding: 15px;
     }
@@ -674,6 +582,44 @@ body {
     
     .inventory-grid {
         grid-template-columns: repeat(6, 1fr);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 1200px) {
+    .character-interface {
+        grid-template-columns: 280px 1fr 280px;
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .inventory-grid {
+        grid-template-columns: repeat(8, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .character-interface {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .inventory-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .logo h1 {
+        font-size: 2rem;
+    }
+    
+    .faction-choice {
+        flex-direction: column;
     }
 }
 

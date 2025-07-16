@@ -69,7 +69,7 @@ class AuthSystem {
             window.gameApp.showScreen('game-screen');
             this.displayPlayerInfo(user);
         } else {
-            this.showError('Неверный никнейм или пароль!');
+            console.log('Неверный никнейм или пароль');
         }
     }
     
@@ -319,5 +319,7 @@ class AuthSystem {
     }
 }
 
-// Создаем глобальный экземпляр системы авторизации
-window.authSystem = new AuthSystem();
+// Создаем глобальный экземпляр системы авторизации только если его еще нет
+if (!window.authSystem) {
+    window.authSystem = new AuthSystem();
+}

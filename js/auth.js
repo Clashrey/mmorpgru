@@ -52,6 +52,8 @@ class AuthSystem {
         const faction = formData.get('faction');
         const gender = formData.get('gender');
         
+        console.log('Данные регистрации:', { nickname, password, passwordRepeat, faction, gender });
+        
         // Валидация
         const validation = this.validateRegistration(nickname, password, passwordRepeat, faction, gender);
         if (!validation.isValid) {
@@ -72,6 +74,8 @@ class AuthSystem {
             faction,
             gender
         };
+        
+        console.log('Временные данные сохранены:', window.tempRegistrationData);
         
         // Передаем данные в компонент персонажа
         window.gameCharacter.setCharacterInfo(nickname, faction, gender);
@@ -294,13 +298,23 @@ class AuthSystem {
         const tempData = window.tempRegistrationData;
         const characterData = window.gameCharacter.getCharacterData();
         
-        if (!tempData || !window.gameCharacter.isValid()) {
-            this.showError('Ошибка создания персонажа. Попробуйте еще раз.');
+        console.log('Создание персонажа:', { tempData, characterData });
+        console.log('Валидность персонажа:', window.gameCharacter.isValid());
+        
+        if (!tempData) {
+            this.showError('Ошибка: данные регистрации не найдены. Попробуйте зарегистрироваться заново.');
+            window.gameApp.showScreen('loading-screen');
+            return false;
+        }
+        
+        if (!window.gameCharacter.isValid()) {
+            this.showError('Ошибка: потратьте все очки характеристик для создания персонажа.');
             return false;
         }
         
         // Создаем пользователя
         const newUser = this.createUser(characterData, tempData.password);
+        console.log('Новый пользователь создан:', newUser);
         
         // Устанавливаем как текущего пользователя
         this.setCurrentUser(newUser);
@@ -309,8 +323,10 @@ class AuthSystem {
         delete window.tempRegistrationData;
         
         // Переходим в игру
-        window.gameApp.showScreen('game-screen');
-        this.displayPlayerInfo(newUser);
+        setTimeout(() => {
+            window.gameApp.showScreen('game-screen');
+            this.displayPlayerInfo(newUser);
+        }, 100);
         
         return true;
     }

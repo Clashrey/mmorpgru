@@ -26,9 +26,9 @@ body {
     display: flex;
 }
 
-/* ===== СТИЛИ СПОРТЗАЛА ===== */
+/* ===== СТИЛИ СПОРТЗАЛА КАК В ПОНАЕХАЛИ ===== */
 .gym-container {
-    max-width: 1200px;
+    max-width: 800px;
     margin: 0 auto;
     background: rgba(43, 45, 66, 0.95);
     border-radius: 15px;
@@ -54,38 +54,13 @@ body {
     font-size: 1.1rem;
 }
 
-.player-info {
+.player-info-gym {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #3a3f5b;
-    border-radius: 10px;
-    padding: 20px;
+    justify-content: center;
     margin-bottom: 30px;
 }
 
-.player-stats {
-    display: flex;
-    gap: 30px;
-}
-
-.stat-display {
-    text-align: center;
-}
-
-.stat-display .label {
-    color: #8d99ae;
-    font-size: 14px;
-    margin-bottom: 5px;
-}
-
-.stat-display .value {
-    color: #5e60ce;
-    font-size: 24px;
-    font-weight: 700;
-}
-
-.gold-display {
+.player-gold {
     background: rgba(255, 206, 86, 0.1);
     border: 1px solid rgba(255, 206, 86, 0.3);
     border-radius: 8px;
@@ -93,140 +68,108 @@ body {
     text-align: center;
 }
 
-.gold-display .label {
+.gold-label {
     color: #8d99ae;
     font-size: 14px;
-    margin-bottom: 5px;
+    margin-right: 10px;
 }
 
-.gold-display .value {
+.gold-value {
     color: #ffce56;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
 }
 
-.training-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
+.stats-table {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
     margin-bottom: 30px;
 }
 
-.training-card {
+.stat-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 200px;
+    gap: 20px;
+    align-items: center;
     background: #3a3f5b;
-    border-radius: 12px;
-    padding: 25px;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-    position: relative;
+    border-radius: 8px;
+    padding: 15px 20px;
+    border: 1px solid #8d99ae;
 }
 
-.training-card:hover {
-    border-color: #5e60ce;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-}
-
-.training-card.expensive {
-    border-color: #ff6b6b;
-}
-
-.training-card.expensive:hover {
-    border-color: #ff5252;
-}
-
-.stat-header {
+.stat-info {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    margin-bottom: 15px;
-}
-
-.stat-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.stat-icon {
-    font-size: 24px;
 }
 
 .stat-name {
     color: #edf2f4;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
+    margin-bottom: 5px;
 }
 
 .stat-level {
     background: rgba(94, 96, 206, 0.2);
     color: #5e60ce;
-    padding: 5px 12px;
+    padding: 5px 15px;
     border-radius: 20px;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 18px;
+    min-width: 40px;
+    text-align: center;
 }
 
 .stat-description {
     color: #8d99ae;
     font-size: 14px;
-    margin-bottom: 20px;
+    text-align: center;
     line-height: 1.4;
 }
 
-.training-cost {
+.stat-controls {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+    justify-content: center;
 }
 
-.cost-label {
-    color: #8d99ae;
-    font-size: 14px;
-}
-
-.cost-value {
-    color: #ffce56;
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.cost-value.expensive {
-    color: #ff6b6b;
-}
-
-.train-button {
-    width: 100%;
+.upgrade-btn {
     background: #5e60ce;
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 12px;
-    font-size: 16px;
+    padding: 10px 15px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: 'Segoe UI', 'Roboto', sans-serif;
+    white-space: nowrap;
 }
 
-.train-button:hover:not(:disabled) {
+.upgrade-btn:hover:not(:disabled) {
     background: #4a4ebd;
     transform: translateY(-1px);
 }
 
-.train-button:disabled {
+.upgrade-btn:disabled {
     background: #6c757d;
     cursor: not-allowed;
     transform: none;
 }
 
-.train-button.expensive {
-    background: #ff6b6b;
+.upgrade-btn.expensive {
+    background: #e74c3c;
 }
 
-.train-button.expensive:hover:not(:disabled) {
-    background: #ff5252;
+.upgrade-btn.expensive:hover:not(:disabled) {
+    background: #c0392b;
+}
+
+.upgrade-btn.cant-afford {
+    background: #95a5a6;
+    color: #7f8c8d;
 }
 
 .gym-controls {
@@ -254,36 +197,6 @@ body {
 .gym-btn.secondary:hover {
     background: #748391;
     transform: translateY(-1px);
-}
-
-.difficulty-indicator {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.difficulty-easy {
-    background: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-}
-
-.difficulty-medium {
-    background: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
-}
-
-.difficulty-hard {
-    background: rgba(220, 53, 69, 0.2);
-    color: #dc3545;
-}
-
-.difficulty-extreme {
-    background: rgba(138, 43, 226, 0.2);
-    color: #8a2be2;
 }
 
 /* ===== СТАРТОВЫЙ ЭКРАН ===== */
@@ -861,18 +774,9 @@ body {
         grid-template-columns: repeat(5, 1fr);
     }
     
-    .training-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-    
-    .player-info {
-        flex-direction: column;
-        gap: 20px;
-    }
-    
-    .player-stats {
-        flex-wrap: wrap;
-        justify-content: center;
+    .stat-row {
+        grid-template-columns: 150px 1fr 180px;
+        gap: 15px;
     }
 }
 
@@ -905,8 +809,15 @@ body {
         flex-direction: column;
     }
     
-    .training-grid {
+    .stat-row {
         grid-template-columns: 1fr;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .gym-container {
+        padding: 20px;
+        margin: 10px;
     }
 }
 
@@ -936,5 +847,10 @@ body {
     
     .stat-controls {
         margin-top: 10px;
+    }
+    
+    .upgrade-btn {
+        font-size: 12px;
+        padding: 8px 12px;
     }
 }

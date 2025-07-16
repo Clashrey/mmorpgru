@@ -240,207 +240,82 @@ class BattleSystem {
     }
     
     /**
+     * Вернуться в арену
+     */
+    returnToArena() {
+        this.currentBattle = null;
+        document.getElementById('battle-result').style.display = 'none';
+    }
+    
+    /**
+     * Вернуться в игру
+     */
+    backToGame() {
+        if (window.gameApp) {
+            window.gameApp.showScreen('game-screen');
+        }
+    }
+    
+    /**
      * Симулировать бой
      */
     simulateBattle() {
         const battle = this.currentBattle;
-        const player = { ...battle.player.battleStats, name: battle.player.nickname };
-        const opponent = { ...battle.opponent.battleStats, name: battle.opponent.nickname };
+        if (!battle) return;
         
-        let playerHp = player.hp;
-        let opponentHp = opponent.hp;
-        let turn = 0;
+        // Простая симуляция боя
+        const isVictory = Math.random() > 0.3; // 70% шанс победы
         
-        battle.log = [];
-        
-        // Определяем порядок ходов по скорости
-        const playerGoesFirst = player.speed >= opponent.speed;
-        
-        battle.log.push({
-            type: 'system',
-            message: `Бой начинается! ${playerGoesFirst ? player.name : opponent.name} атакует первым.`
-        });
-        
-        // Основной цикл боя
-        while (playerHp > 0 && opponentHp > 0 && turn < 20) { // Максимум 20 ходов
-            turn++;
-            
-            if ((playerGoesFirst && turn % 2 === 1) || (!playerGoesFirst && turn % 2 === 0)) {
-                // Ход игрока
-                const result = this.performAttack(player, opponent);
-                opponentHp -= result.damage;
-                battle.log.push({
-                    type: 'player-action',
-                    message: result.message
-                });
-                
-                if (result.doubleHit) {
-                    const secondResult = this.performAttack(player, opponent);
-                    opponentHp -= secondResult.damage;
-                    battle.log.push({
-                        type: 'player-action',
-                        message: `Двойной удар! ${secondResult.message}`
-                    });
-                }
-            } else {
-                // Ход противника
-                const result = this.performAttack(opponent, player);
-                playerHp -= result.damage;
-                battle.log.push({
-                    type: 'opponent-action',
-                    message: result.message.replace(opponent.name, battle.opponent.nickname)
-                });
-                
-                if (result.doubleHit) {
-                    const secondResult = this.performAttack(opponent, player);
-                    playerHp -= secondResult.damage;
-                    battle.log.push({
-                        type: 'opponent-action',
-                        message: `Двойной удар! ${secondResult.message.replace(opponent.name, battle.opponent.nickname)}`
-                    });
-                }
-            }
-            
-            // Проверяем окончание боя
-            if (playerHp <= 0 || opponentHp <= 0) {
-                break;
-            }
-        }
-        
-        // Определяем победителя
-        if (playerHp > 0) {
-            battle.winner = 'player';
-            battle.log.push({
-                type: 'system',
-                message: `🏆 ${battle.player.nickname} одерживает победу!`
-            });
-        } else {
-            battle.winner = 'opponent';
-            battle.log.push({
-                type: 'system',
-                message: `💀 ${battle.opponent.nickname} побеждает!`
-            });
-        }
-        
-        // Рассчитываем награды
-        this.calculateRewards();
-        
-        // Показываем лог и результат
-        this.displayBattleLog();
         setTimeout(() => {
-            this.showBattleOutcome();
+            this.showBattleOutcome(isVictory);
         }, 2000);
-    }
-    
-    /**
-     * Выполнить атаку
-     */
-    performAttack(attacker, defender) {
-        // Проверяем уворот
-        const dodgeRoll = Math.random() * 100;
-        if (dodgeRoll < defender.dodgeChance) {
-            return {
-                damage: 0,
-                dodged: true,
-                doubleHit: false,
-                message: `${attacker.name} атакует, но ${defender.name} увернулся!`
-            };
-        }
-        
-        // Рассчитываем урон
-        let damage = Math.max(1, attacker.attack - defender.defense);
-        
-        // Проверяем двойной удар
-        const doubleHitRoll = Math.random() * 100;
-        const doubleHit = doubleHitRoll < attacker.doubleHitChance;
-        
-        return {
-            damage: damage,
-            dodged: false,
-            doubleHit: doubleHit,
-            message: `${attacker.name} наносит ${damage} урона!`
-        };
-    }
-    
-    /**
-     * Рассчитать награды
-     */
-    calculateRewards() {
-        const battle = this.currentBattle;
-        
-        if (battle.winner === 'player') {
-            // Опыт за победу
-            let exp = 8; // Базовый опыт
-            
-            if (!battle.opponent.isBot) {
-                const levelDiff = (battle.opponent.level || 1) - (battle.player.level || 1);
-                if (levelDiff >= 2) exp = 20;
-                else if (levelDiff >= 1) exp = 15;
-                else if (levelDiff >= 0) exp = 10;
-                else exp = 5;
-            }
-            
-            // Золото за победу
-            let gold = 0;
-            if (battle.opponent.isBot) {
-                gold = battle.opponent.gold; // Все золото моба
-            } else {
-                gold = Math.floor((battle.opponent.gold || 0) * 0.15); // 15% от золота игрока
-            }
-            
-            battle.rewards = { exp, gold };
-        } else {
-            // При поражении игрок теряет золото
-            const playerGold = battle.player.gold || 0;
-            const lostGold = Math.floor(playerGold * 0.1); // Теряем 10%
-            
-            battle.rewards = { exp: 0, gold: -lostGold };
-        }
-    }
-    
-    /**
-     * Отобразить лог боя
-     */
-    displayBattleLog() {
-        const logEntries = document.getElementById('log-entries');
-        logEntries.innerHTML = '';
-        
-        this.currentBattle.log.forEach(entry => {
-            const logElement = document.createElement('div');
-            logElement.className = `log-entry ${entry.type}`;
-            logElement.textContent = entry.message;
-            logEntries.appendChild(logElement);
-        });
-        
-        // Прокручиваем вниз
-        logEntries.scrollTop = logEntries.scrollHeight;
     }
     
     /**
      * Показать результат боя
      */
-    showBattleOutcome() {
-        const battle = this.currentBattle;
+    showBattleOutcome(isVictory) {
+        document.getElementById('battle-log').style.display = 'none';
+        
         const outcomeDiv = document.getElementById('battle-outcome');
         
-        if (battle.winner === 'player') {
+        if (isVictory) {
             outcomeDiv.className = 'battle-outcome';
             document.getElementById('outcome-title').textContent = '🏆 ПОБЕДА!';
             document.getElementById('outcome-description').textContent = 'Вы одержали убедительную победу!';
+            
+            // Награды
+            const exp = 10 + Math.floor(Math.random() * 10);
+            const gold = 25 + Math.floor(Math.random() * 50);
+            
+            document.getElementById('reward-exp').textContent = exp;
+            document.getElementById('reward-gold').textContent = gold;
+            
+            // Обновляем игрока
+            const currentUser = window.authSystem.getCurrentUser();
+            if (currentUser) {
+                currentUser.experience = (currentUser.experience || 0) + exp;
+                currentUser.gold = (currentUser.gold || 0) + gold;
+                window.authSystem.setCurrentUser(currentUser);
+                
+                if (window.authSystem.displayPlayerInfo) {
+                    window.authSystem.displayPlayerInfo(currentUser);
+                }
+            }
         } else {
             outcomeDiv.className = 'battle-outcome defeat';
             document.getElementById('outcome-title').textContent = '💀 ПОРАЖЕНИЕ';
             document.getElementById('outcome-description').textContent = 'Вы потерпели поражение...';
+            
+            document.getElementById('reward-exp').textContent = '0';
+            document.getElementById('reward-gold').textContent = '0';
         }
         
-        // Показываем награды
-        if (battle.rewards.exp > 0) {
-            document.getElementById('reward-exp').textContent = battle.rewards.exp;
-            document.querySelector('.reward-item').style.display = 'flex';
-        } else {
-            document.querySelector('.reward-item').style.display = 'none';
-        }
-        
-        document.getElementById('reward-gold').textContent = battle.rewards.gold >= 0 ? `+${battle.rewards.gold}` : battle.rewards.gold;
-        
-        // Применяем награды к игроку
+        outcomeDiv.style.display = 'block';
+    }
+}
+
+// Создаем глобальный экземпляр
+if (!window.battleSystem) {
+    window.battleSystem = new BattleSystem();
+}

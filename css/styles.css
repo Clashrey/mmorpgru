@@ -356,23 +356,325 @@ body {
     margin-top: 30px;
 }
 
-/* ===== ИГРОВОЙ ЭКРАН ===== */
-.game-container {
-    text-align: center;
-    background: rgba(22, 33, 62, 0.9);
-    border-radius: 15px;
-    padding: 40px;
-    max-width: 800px;
-    width: 100%;
-    border: 1px solid #4ecdc4;
+/* ===== ИГРОВОЙ ИНТЕРФЕЙС ===== */
+.character-interface {
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    gap: 20px;
+    padding: 20px;
+    min-height: calc(100vh - 200px);
 }
 
-#player-info {
-    margin: 20px 0;
+/* Левая панель - Характеристики */
+.stats-panel {
+    background: linear-gradient(145deg, #8B4513, #A0522D);
+    border-radius: 15px;
     padding: 20px;
-    background: rgba(42, 42, 62, 0.5);
+    border: 3px solid #DAA520;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.stats-panel h3 {
+    color: #FFD700;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(139, 69, 19, 0.3);
+    border-radius: 8px;
+    border: 1px solid #CD853F;
+    transition: all 0.3s ease;
+}
+
+.stat-row:hover {
+    background: rgba(139, 69, 19, 0.5);
+    transform: translateX(5px);
+}
+
+.stat-name {
+    color: #F5DEB3;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.stat-value {
+    color: #FFD700;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: rgba(255, 215, 0, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #DAA520;
+}
+
+/* Центральная панель - Персонаж */
+.character-display {
+    background: linear-gradient(145deg, #2F4F4F, #2F4F4F);
+    border-radius: 15px;
+    padding: 30px;
+    border: 3px solid #4682B4;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.character-avatar {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.avatar-placeholder {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(45deg, #4682B4, #5F9EA0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    border: 4px solid #FFD700;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    font-size: 4rem;
+}
+
+.character-name-display h2 {
+    color: #FFD700;
+    margin: 0;
+    font-size: 1.8rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.equipment-slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.equipment-slot {
+    width: 60px;
+    height: 60px;
+    background: rgba(70, 130, 180, 0.2);
+    border: 2px solid #4682B4;
     border-radius: 10px;
-    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.equipment-slot:hover {
+    background: rgba(70, 130, 180, 0.4);
+    transform: scale(1.05);
+}
+
+/* Правая панель - Информация */
+.info-panel {
+    background: linear-gradient(145deg, #8B0000, #A52A2A);
+    border-radius: 15px;
+    padding: 20px;
+    border: 3px solid #FF6347;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.info-panel h3 {
+    color: #FFD700;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(139, 0, 0, 0.3);
+    border-radius: 8px;
+    border: 1px solid #B22222;
+    transition: all 0.3s ease;
+}
+
+.info-row:hover {
+    background: rgba(139, 0, 0, 0.5);
+    transform: translateX(-5px);
+}
+
+.info-label {
+    color: #F5DEB3;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.info-value {
+    color: #FFD700;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #DAA520;
+}
+
+.info-value.health {
+    background: rgba(255, 0, 0, 0.1);
+    border-color: #FF0000;
+    color: #FF6B6B;
+}
+
+.info-value.mana {
+    background: rgba(0, 0, 255, 0.1);
+    border-color: #0000FF;
+    color: #4ECDC4;
+}
+
+.info-value.gold {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: #FFD700;
+    color: #FFD700;
+}
+
+.info-value.faction {
+    background: rgba(138, 43, 226, 0.1);
+    border-color: #8A2BE2;
+    color: #DDA0DD;
+}
+
+/* Инвентарь */
+.inventory-section {
+    margin-top: 20px;
+    background: linear-gradient(145deg, #556B2F, #6B8E23);
+    border-radius: 15px;
+    padding: 20px;
+    border: 3px solid #9ACD32;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.inventory-header h3 {
+    color: #FFD700;
+    margin: 0;
+    font-size: 1.3rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.inventory-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.inventory-tab {
+    padding: 8px 16px;
+    background: rgba(85, 107, 47, 0.5);
+    border: 2px solid #9ACD32;
+    border-radius: 8px;
+    color: #F5DEB3;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+.inventory-tab:hover {
+    background: rgba(85, 107, 47, 0.8);
+}
+
+.inventory-tab.active {
+    background: #9ACD32;
+    color: #2F4F2F;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+}
+
+.inventory-slot {
+    width: 50px;
+    height: 50px;
+    background: rgba(85, 107, 47, 0.3);
+    border: 2px solid #9ACD32;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.inventory-slot:hover {
+    background: rgba(85, 107, 47, 0.6);
+    transform: scale(1.05);
+}
+
+.inventory-slot.empty:after {
+    content: '📦';
+    opacity: 0.3;
+    font-size: 1.2rem;
+}
+
+/* Кнопки управления */
+.game-controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+}
+
+/* Адаптивность для игрового интерфейса */
+@media (max-width: 1200px) {
+    .character-interface {
+        grid-template-columns: 250px 1fr 250px;
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .inventory-grid {
+        grid-template-columns: repeat(8, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .character-interface {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .inventory-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
 }
 
 /* ===== АДАПТИВНОСТЬ ===== */

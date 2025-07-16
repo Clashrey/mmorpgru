@@ -1,5 +1,5 @@
 /**
- * Класс для управления авторизацией и регистрацией
+ * Класс для управления авторизацией и регистрацией с новой системой характеристик
  */
 class AuthSystem {
     constructor() {
@@ -44,8 +44,6 @@ class AuthSystem {
      */
     handleRegister(e) {
         e.preventDefault();
-        // Эта функция больше не нужна, так как логика перенесена в app.js
-        // Оставляем для совместимости
         console.log('handleRegister вызвана, но логика перенесена в app.js');
     }
     
@@ -59,7 +57,6 @@ class AuthSystem {
         const nickname = formData.get('nickname').trim();
         const password = formData.get('password');
         
-        // Добавляем отладочную информацию
         console.log('Попытка входа:', { nickname, password });
         console.log('Сохраненные пользователи:', this.getUsers());
         
@@ -148,12 +145,11 @@ class AuthSystem {
      * Простое хеширование пароля
      */
     hashPassword(password) {
-        // Простой хеш для демо версии (в продакшене использовать bcrypt)
         let hash = 0;
         for (let i = 0; i < password.length; i++) {
             const char = password.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Конвертация в 32-битное число
+            hash = hash & hash;
         }
         return hash.toString();
     }
@@ -176,19 +172,23 @@ class AuthSystem {
     }
     
     /**
-     * Создание нового пользователя
+     * Создание нового пользователя с новой системой характеристик
      */
     createUser(characterData, password) {
         const users = this.getUsers();
         const hashedPassword = this.hashPassword(password);
         
+        // Создаем персонажа с правильными стартовыми характеристиками
+        const character = new Character();
+        character.setCharacterInfo(characterData.nickname, characterData.faction, characterData.gender);
+        
         const newUser = {
-            ...characterData,
-            password: hashedPassword, // Сохраняем хешированный пароль
+            ...character.getCharacterData(),
+            password: hashedPassword,
             id: this.generateUserId()
         };
         
-        console.log('Создаем пользователя:', newUser);
+        console.log('Создаем пользователя с новой системой характеристик:', newUser);
         
         users.push(newUser);
         this.saveUsers(users);
@@ -245,16 +245,14 @@ class AuthSystem {
      * Показать ошибку
      */
     showError(message) {
-        // Простое показывание ошибки через alert
-        // В будущем можно заменить на красивые уведомления
         alert(message);
     }
     
     /**
-     * Показать информацию об игроке
+     * Показать информацию об игроке с новой системой характеристик
      */
     displayPlayerInfo(user) {
-        // Заполняем характеристики
+        // Заполняем основные характеристики
         if (user.stats) {
             document.getElementById('game-stat-str').textContent = user.stats.str || 1;
             document.getElementById('game-stat-int').textContent = user.stats.int || 1;
@@ -268,13 +266,25 @@ class AuthSystem {
         document.getElementById('character-display-name').textContent = user.nickname || 'Игрок';
         document.getElementById('game-level').textContent = user.level || 1;
         document.getElementById('game-experience').textContent = user.experience || 0;
-        document.getElementById('game-health').textContent = user.health || 105;
-        document.getElementById('game-mana').textContent = user.mana || 55;
+        
+        // Рассчитываем HP по новой формуле: 50 + END * 10
+        const calculatedHP = user.stats ? (50 + user.stats.end * 10) : (user.health || 105);
+        document.getElementById('game-health').textContent = calculatedHP;
+        
+        // Убираем ману из отображения (мана больше не используется)
+        const manaElement = document.getElementById('game-mana');
+        if (manaElement) {
+            manaElement.textContent = '-';
+        }
+        
         document.getElementById('game-gold').textContent = user.gold || 100;
         
         // Отображаем фракцию
         const factionName = user.faction === 'workers' ? 'Работяги' : 'Креаклы';
         document.getElementById('character-faction-badge').textContent = factionName;
+        
+        console.log('Отображена информация о персонаже с новой системой характеристик');
+        console.log('Рассчитанное HP:', calculatedHP);
     }
     
     /**
@@ -282,10 +292,6 @@ class AuthSystem {
      */
     completeCharacterCreation() {
         const tempData = window.tempRegistrationData;
-        const characterData = window.gameCharacter.getCharacterData();
-        
-        console.log('Создание персонажа:', { tempData, characterData });
-        console.log('Валидность персонажа:', window.gameCharacter.isValid());
         
         if (!tempData) {
             this.showError('Ошибка: данные регистрации не найдены. Попробуйте зарегистрироваться заново.');
@@ -293,14 +299,9 @@ class AuthSystem {
             return false;
         }
         
-        if (!window.gameCharacter.isValid()) {
-            this.showError('Ошибка: потратьте все очки характеристик для создания персонажа.');
-            return false;
-        }
-        
-        // Создаем пользователя
-        const newUser = this.createUser(characterData, tempData.password);
-        console.log('Новый пользователь создан:', newUser);
+        // Создаем пользователя с новой системой характеристик
+        const newUser = this.createUser(tempData, tempData.password);
+        console.log('Новый пользователь создан с новой системой характеристик:', newUser);
         
         // Устанавливаем как текущего пользователя
         this.setCurrentUser(newUser);

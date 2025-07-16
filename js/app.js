@@ -74,7 +74,7 @@ class GameApp {
             }
             
             // Кнопки тренировок в спортзале
-            document.querySelectorAll('.train-button').forEach(button => {
+            document.querySelectorAll('.upgrade-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
                     const stat = e.target.dataset.stat;
                     this.trainStat(stat);
@@ -161,10 +161,7 @@ class GameApp {
      * Обновить отображение спортзала
      */
     updateGymDisplay(user) {
-        // Обновляем информацию об игроке
-        document.getElementById('gym-player-name').textContent = user.nickname;
-        document.getElementById('gym-player-level').textContent = user.level || 1;
-        document.getElementById('gym-player-health').textContent = user.stats ? (50 + user.stats.end * 10) : user.health;
+        // Обновляем золото
         document.getElementById('gym-player-gold').textContent = user.gold || 0;
         
         // Обновляем характеристики
@@ -202,28 +199,24 @@ class GameApp {
             const buttonElement = document.querySelector(`[data-stat="${stat}"]`);
             
             if (costElement) {
-                costElement.textContent = `${cost} 💰`;
+                costElement.textContent = cost;
                 
-                // Меняем цвет если дорого
-                if (cost > user.gold) {
-                    costElement.classList.add('expensive');
-                    if (buttonElement) {
+                if (buttonElement) {
+                    // Проверяем, хватает ли денег
+                    if (cost > user.gold) {
                         buttonElement.disabled = true;
-                        buttonElement.textContent = 'Недостаточно золота';
-                    }
-                } else {
-                    costElement.classList.remove('expensive');
-                    if (buttonElement) {
+                        buttonElement.classList.add('cant-afford');
+                        buttonElement.classList.remove('expensive');
+                    } else {
                         buttonElement.disabled = false;
-                        const statNames = {
-                            str: 'силу',
-                            end: 'выносливость', 
-                            dex: 'реакцию',
-                            int: 'интеллект',
-                            cha: 'харизму',
-                            lck: 'удачу'
-                        };
-                        buttonElement.textContent = `Тренировать ${statNames[stat]}`;
+                        buttonElement.classList.remove('cant-afford');
+                        
+                        // Красим дорогие статы в красный
+                        if (stat === 'str' || stat === 'end') {
+                            buttonElement.classList.add('expensive');
+                        } else {
+                            buttonElement.classList.remove('expensive');
+                        }
                     }
                 }
             }

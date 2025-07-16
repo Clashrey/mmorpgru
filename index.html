@@ -207,11 +207,133 @@
         </div>
     </div>
 
-    <!-- Игровой интерфейс (заглушка) -->
+    <!-- Игровой интерфейс -->
     <div id="game-screen" class="screen">
-        <div class="game-container">
-            <h2>Добро пожаловать в игру!</h2>
-            <div id="player-info"></div>
+        <div class="character-interface">
+            <!-- Левый блок: Характеристики -->
+            <div class="stats-panel">
+                <h3>Характеристики</h3>
+                <div class="stats-list">
+                    <div class="stat-row">
+                        <span class="stat-name">STR — Сила</span>
+                        <span class="stat-value" id="game-stat-str">1</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">INT — Интеллект</span>
+                        <span class="stat-value" id="game-stat-int">1</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">CHA — Харизма</span>
+                        <span class="stat-value" id="game-stat-cha">1</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">END — Выносливость</span>
+                        <span class="stat-value" id="game-stat-end">1</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">DEX — Реакция</span>
+                        <span class="stat-value" id="game-stat-dex">1</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-name">LCK — Удача</span>
+                        <span class="stat-value" id="game-stat-lck">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Центральный блок: Персонаж -->
+            <div class="character-display">
+                <div class="character-avatar">
+                    <div class="avatar-placeholder">
+                        <span id="character-avatar-text">👤</span>
+                    </div>
+                    <div class="character-name-display">
+                        <h2 id="character-display-name">Персонаж</h2>
+                    </div>
+                </div>
+                
+                <!-- Слоты экипировки (пока заглушки) -->
+                <div class="equipment-slots">
+                    <div class="equipment-slot helmet" title="Шлем">⛑️</div>
+                    <div class="equipment-slot weapon" title="Оружие">⚔️</div>
+                    <div class="equipment-slot armor" title="Броня">🛡️</div>
+                    <div class="equipment-slot boots" title="Обувь">👢</div>
+                </div>
+            </div>
+
+            <!-- Правый блок: Информация -->
+            <div class="info-panel">
+                <h3>Информация</h3>
+                <div class="info-content">
+                    <div class="info-row">
+                        <span class="info-label">Никнейм:</span>
+                        <span class="info-value" id="game-nickname">Player</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Уровень:</span>
+                        <span class="info-value" id="game-level">1</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Опыт:</span>
+                        <span class="info-value" id="game-experience">0</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Здоровье:</span>
+                        <span class="info-value health" id="game-health">105</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Мана:</span>
+                        <span class="info-value mana" id="game-mana">55</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Золото:</span>
+                        <span class="info-value gold" id="game-gold">100</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Фракция:</span>
+                        <span class="info-value faction" id="game-faction">Креаклы</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Нижний блок: Инвентарь -->
+        <div class="inventory-section">
+            <div class="inventory-header">
+                <h3>Инвентарь</h3>
+                <div class="inventory-tabs">
+                    <button class="inventory-tab active">Предметы</button>
+                    <button class="inventory-tab">Ресурсы</button>
+                    <button class="inventory-tab">Квесты</button>
+                </div>
+            </div>
+            <div class="inventory-grid">
+                <!-- Сетка слотов инвентаря -->
+                <div class="inventory-slot empty" data-slot="0"></div>
+                <div class="inventory-slot empty" data-slot="1"></div>
+                <div class="inventory-slot empty" data-slot="2"></div>
+                <div class="inventory-slot empty" data-slot="3"></div>
+                <div class="inventory-slot empty" data-slot="4"></div>
+                <div class="inventory-slot empty" data-slot="5"></div>
+                <div class="inventory-slot empty" data-slot="6"></div>
+                <div class="inventory-slot empty" data-slot="7"></div>
+                <div class="inventory-slot empty" data-slot="8"></div>
+                <div class="inventory-slot empty" data-slot="9"></div>
+                <div class="inventory-slot empty" data-slot="10"></div>
+                <div class="inventory-slot empty" data-slot="11"></div>
+                <div class="inventory-slot empty" data-slot="12"></div>
+                <div class="inventory-slot empty" data-slot="13"></div>
+                <div class="inventory-slot empty" data-slot="14"></div>
+                <div class="inventory-slot empty" data-slot="15"></div>
+                <div class="inventory-slot empty" data-slot="16"></div>
+                <div class="inventory-slot empty" data-slot="17"></div>
+                <div class="inventory-slot empty" data-slot="18"></div>
+                <div class="inventory-slot empty" data-slot="19"></div>
+            </div>
+        </div>
+
+        <!-- Кнопка выхода -->
+        <div class="game-controls">
             <button type="button" id="btn-logout" class="btn-secondary">Выйти</button>
         </div>
     </div>

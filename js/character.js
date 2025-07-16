@@ -55,10 +55,21 @@ class Character {
      * Проверить валидность данных персонажа
      */
     isValid() {
-        return this.nickname.length >= 3 && 
+        const isValid = this.nickname.length >= 3 && 
                this.faction !== '' && 
                this.gender !== '' && 
                this.freePoints === 0;
+        
+        console.log('Проверка валидности персонажа:', {
+            nickname: this.nickname,
+            nicknameLength: this.nickname.length,
+            faction: this.faction,
+            gender: this.gender,
+            freePoints: this.freePoints,
+            isValid: isValid
+        });
+        
+        return isValid;
     }
 }
 

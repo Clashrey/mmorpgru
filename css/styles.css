@@ -26,6 +26,266 @@ body {
     display: flex;
 }
 
+/* ===== СТИЛИ СПОРТЗАЛА ===== */
+.gym-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: rgba(43, 45, 66, 0.95);
+    border-radius: 15px;
+    padding: 30px;
+    border: 1px solid #8d99ae;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    width: 100%;
+}
+
+.gym-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.gym-header h1 {
+    font-size: 2.5rem;
+    color: #edf2f4;
+    margin-bottom: 10px;
+}
+
+.gym-header p {
+    color: #8d99ae;
+    font-size: 1.1rem;
+}
+
+.player-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #3a3f5b;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.player-stats {
+    display: flex;
+    gap: 30px;
+}
+
+.stat-display {
+    text-align: center;
+}
+
+.stat-display .label {
+    color: #8d99ae;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.stat-display .value {
+    color: #5e60ce;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.gold-display {
+    background: rgba(255, 206, 86, 0.1);
+    border: 1px solid rgba(255, 206, 86, 0.3);
+    border-radius: 8px;
+    padding: 15px 25px;
+    text-align: center;
+}
+
+.gold-display .label {
+    color: #8d99ae;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.gold-display .value {
+    color: #ffce56;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.training-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.training-card {
+    background: #3a3f5b;
+    border-radius: 12px;
+    padding: 25px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.training-card:hover {
+    border-color: #5e60ce;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.training-card.expensive {
+    border-color: #ff6b6b;
+}
+
+.training-card.expensive:hover {
+    border-color: #ff5252;
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.stat-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-icon {
+    font-size: 24px;
+}
+
+.stat-name {
+    color: #edf2f4;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.stat-level {
+    background: rgba(94, 96, 206, 0.2);
+    color: #5e60ce;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.stat-description {
+    color: #8d99ae;
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.training-cost {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.cost-label {
+    color: #8d99ae;
+    font-size: 14px;
+}
+
+.cost-value {
+    color: #ffce56;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.cost-value.expensive {
+    color: #ff6b6b;
+}
+
+.train-button {
+    width: 100%;
+    background: #5e60ce;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.train-button:hover:not(:disabled) {
+    background: #4a4ebd;
+    transform: translateY(-1px);
+}
+
+.train-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.train-button.expensive {
+    background: #ff6b6b;
+}
+
+.train-button.expensive:hover:not(:disabled) {
+    background: #ff5252;
+}
+
+.gym-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.gym-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gym-btn.secondary {
+    background: #8d99ae;
+    color: white;
+}
+
+.gym-btn.secondary:hover {
+    background: #748391;
+    transform: translateY(-1px);
+}
+
+.difficulty-indicator {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.difficulty-easy {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.difficulty-medium {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.difficulty-hard {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.difficulty-extreme {
+    background: rgba(138, 43, 226, 0.2);
+    color: #8a2be2;
+}
+
 /* ===== СТАРТОВЫЙ ЭКРАН ===== */
 #loading-screen {
     flex-direction: column;
@@ -234,6 +494,14 @@ body {
     line-height: 1.4;
 }
 
+.faction-info small {
+    color: #5e60ce;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 10px;
+    display: block;
+}
+
 /* ===== ВЫБОР ПОЛА ===== */
 .gender-choice {
     display: flex;
@@ -258,6 +526,13 @@ body {
 
 .gender-choice input[type="radio"]:checked + span {
     color: #5e60ce;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+    margin-top: 30px;
 }
 
 /* ===== ИГРОВОЙ ИНТЕРФЕЙС ===== */
@@ -559,7 +834,9 @@ body {
     background: #c0c0c0;
     transform: scale(1.03);
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-} /* ===== КНОПКИ УПРАВЛЕНИЯ ===== */
+}
+
+/* ===== КНОПКИ УПРАВЛЕНИЯ ===== */
 .game-controls {
     position: fixed;
     top: 20px;
@@ -582,6 +859,20 @@ body {
     
     .inventory-grid {
         grid-template-columns: repeat(5, 1fr);
+    }
+    
+    .training-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .player-info {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .player-stats {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }
 
@@ -613,43 +904,12 @@ body {
     .faction-choice {
         flex-direction: column;
     }
-}/* ===== АДАПТИВНОСТЬ ===== */
-@media (max-width: 1200px) {
-    .character-interface {
-        grid-template-columns: 280px 1fr 280px;
-        gap: 15px;
-        padding: 15px;
-    }
     
-    .inventory-grid {
-        grid-template-columns: repeat(8, 1fr);
-    }
-}
-
-@media (max-width: 900px) {
-    .character-interface {
+    .training-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .inventory-grid {
-        grid-template-columns: repeat(6, 1fr);
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .logo h1 {
-        font-size: 2rem;
-    }
-    
-    .faction-choice {
-        flex-direction: column;
     }
 }
 
-/* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 768px) {
     .logo h1 {
         font-size: 2rem;

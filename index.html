@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ММО-РПГ: Работяги vs Креаклы</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Экран загрузки/стартовый -->
+    <div id="loading-screen" class="screen active">
+        <div class="logo">
+            <h1>РАБОТЯГИ vs КРЕАКЛЫ</h1>
+            <p>Браузерная ММО-РПГ</p>
+        </div>
+        <div class="menu">
+            <button id="btn-register" class="btn-primary">Регистрация</button>
+            <button id="btn-login" class="btn-secondary">Вход</button>
+        </div>
+    </div>
+
+    <!-- Экран регистрации -->
+    <div id="register-screen" class="screen">
+        <div class="form-container">
+            <h2>Регистрация нового персонажа</h2>
+            
+            <form id="register-form">
+                <div class="input-group">
+                    <label for="nickname">Никнейм:</label>
+                    <input type="text" id="nickname" name="nickname" required maxlength="20" 
+                           placeholder="Введите никнейм">
+                    <div class="input-hint">От 3 до 20 символов</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" name="password" required minlength="6"
+                           placeholder="Введите пароль">
+                    <div class="input-hint">Минимум 6 символов</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="password-repeat">Повторите пароль:</label>
+                    <input type="password" id="password-repeat" name="password-repeat" required
+                           placeholder="Повторите пароль">
+                </div>
+
+                <!-- Выбор фракции -->
+                <div class="choice-group">
+                    <h3>Выберите фракцию:</h3>
+                    <div class="faction-choice">
+                        <label class="faction-card">
+                            <input type="radio" name="faction" value="workers" required>
+                            <div class="faction-info">
+                                <h4>РАБОТЯГИ</h4>
+                                <p>Честный труд, крепкие кулаки и здравый смысл. Эти ребята знают цену заработанному рублю.</p>
+                            </div>
+                        </label>
+                        <label class="faction-card">
+                            <input type="radio" name="faction" value="creatives" required>
+                            <div class="faction-info">
+                                <h4>КРЕАКЛЫ</h4>
+                                <p>Творческие натуры, которые верят в силу идей и красоту. Деньги не главное, главное - самовыражение.</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Выбор пола -->
+                <div class="choice-group">
+                    <h3>Пол персонажа:</h3>
+                    <div class="gender-choice">
+                        <label>
+                            <input type="radio" name="gender" value="male" required>
+                            <span>Мужской</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="gender" value="female" required>
+                            <span>Женский</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="btn-back" class="btn-secondary">Назад</button>
+                    <button type="submit" class="btn-primary">Продолжить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Экран создания характеристик -->
+    <div id="character-screen" class="screen">
+        <div class="character-container">
+            <h2>Распределение характеристик</h2>
+            <div class="character-info">
+                <div id="character-preview">
+                    <h3 id="char-name"></h3>
+                    <p id="char-faction"></p>
+                    <p id="char-gender"></p>
+                </div>
+                
+                <div class="stats-points">
+                    <h4>Свободных очков: <span id="free-points">20</span></h4>
+                </div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-info">
+                        <h4>STR — Сила</h4>
+                        <p>Бьёшь больно и тащишь много</p>
+                    </div>
+                    <div class="stat-controls">
+                        <button type="button" class="stat-btn" data-stat="str" data-action="decrease">-</button>
+                        <span class="stat-value" id="stat-str">5</span>
+                        <button type="button" class="stat-btn" data-stat="str" data-action="increase">+</button>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-info">
+                        <h4>INT — Интеллект</h4>
+                        <p>Думаешь, как бы не работать</p>
+                    </div>
+                    <div class="stat-controls">
+                        <button type="button" class="stat-btn" data-stat="int" data-action="decrease">-</button>
+                        <span class="stat-value" id="stat-int">5</span>
+                        <button type="button" class="stat-btn" data-stat="int" data-action="increase">+</button>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-info">
+                        <h4>CHA — Харизма</h4>
+                        <p>Уговариваешь, получишь красиво</p>
+                    </div>
+                    <div class="stat-controls">
+                        <button type="button" class="stat-btn" data-stat="cha" data-action="decrease">-</button>
+                        <span class="stat-value" id="stat-cha">5</span>
+                        <button type="button" class="stat-btn" data-stat="cha" data-action="increase">+</button>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-info">
+                        <h4>END — Выносливость</h4>
+                        <p>Живёшь дольше, чем надо</p>
+                    </div>
+                    <div class="stat-controls">
+                        <button type="button" class="stat-btn" data-stat="end" data-action="decrease">-</button>
+                        <span class="stat-value" id="stat-end">5</span>
+                        <button type="button" class="stat-btn" data-stat="end" data-action="increase">+</button>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-info">
+                        <h4>DEX — Реакция</h4>
+                        <p>Быстрый, как заказ с Озона</p>
+                    </div>
+                    <div class="stat-controls">
+                        <button type="button" class="stat-btn" data-stat="dex" data-action="decrease">-</button>
+                        <span class="stat-value" id="stat-dex">5</span>
+                        <button type="button" class="stat-btn" data-stat="dex" data-action="increase">+</button>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-info">
+                        <h4>LCK — Удача</h4>
+                        <p>Просто фартовый, и всё</p>
+                    </div>
+                    <div class="stat-controls">
+                        <button type="button" class="stat-btn" data-stat="lck" data-action="decrease">-</button>
+                        <span class="stat-value" id="stat-lck">5</span>
+                        <button type="button" class="stat-btn" data-stat="lck" data-action="increase">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" id="btn-char-back" class="btn-secondary">Назад</button>
+                <button type="button" id="btn-create-character" class="btn-primary" disabled>Создать персонажа</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран входа -->
+    <div id="login-screen" class="screen">
+        <div class="form-container">
+            <h2>Вход в игру</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="login-nickname">Никнейм:</label>
+                    <input type="text" id="login-nickname" name="nickname" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Пароль:</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="btn-login-back" class="btn-secondary">Назад</button>
+                    <button type="submit" class="btn-primary">Войти</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Игровой интерфейс (заглушка) -->
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <h2>Добро пожаловать в игру!</h2>
+            <div id="player-info"></div>
+            <button type="button" id="btn-logout" class="btn-secondary">Выйти</button>
+        </div>
+    </div>
+
+    <!-- Подключаем скрипты -->
+    <script src="js/character.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

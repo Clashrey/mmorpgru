@@ -254,29 +254,39 @@ class AuthSystem {
      * Показать информацию об игроке
      */
     displayPlayerInfo(user) {
-        const playerInfoElement = document.getElementById('player-info');
-        if (playerInfoElement) {
-            const factionName = user.faction === 'workers' ? 'Работяги' : 'Креаклы';
-            const genderName = user.gender === 'male' ? 'Мужской' : 'Женский';
-            
-            playerInfoElement.innerHTML = `
-                <h3>${user.nickname}</h3>
-                <p><strong>Фракция:</strong> ${factionName}</p>
-                <p><strong>Пол:</strong> ${genderName}</p>
-                <p><strong>Уровень:</strong> ${user.level}</p>
-                <p><strong>Опыт:</strong> ${user.experience}</p>
-                <p><strong>Здоровье:</strong> ${user.health}</p>
-                <p><strong>Мана:</strong> ${user.mana}</p>
-                <p><strong>Золото:</strong> ${user.gold}</p>
-                <hr>
-                <h4>Характеристики:</h4>
-                <p><strong>Сила:</strong> ${user.stats.str}</p>
-                <p><strong>Интеллект:</strong> ${user.stats.int}</p>
-                <p><strong>Харизма:</strong> ${user.stats.cha}</p>
-                <p><strong>Выносливость:</strong> ${user.stats.end}</p>
-                <p><strong>Реакция:</strong> ${user.stats.dex}</p>
-                <p><strong>Удача:</strong> ${user.stats.lck}</p>
-            `;
+        // Заполняем характеристики
+        if (user.stats) {
+            document.getElementById('game-stat-str').textContent = user.stats.str || 1;
+            document.getElementById('game-stat-int').textContent = user.stats.int || 1;
+            document.getElementById('game-stat-cha').textContent = user.stats.cha || 1;
+            document.getElementById('game-stat-end').textContent = user.stats.end || 1;
+            document.getElementById('game-stat-dex').textContent = user.stats.dex || 1;
+            document.getElementById('game-stat-lck').textContent = user.stats.lck || 1;
+        }
+        
+        // Заполняем информацию
+        document.getElementById('game-nickname').textContent = user.nickname || 'Игрок';
+        document.getElementById('character-display-name').textContent = user.nickname || 'Игрок';
+        document.getElementById('game-level').textContent = user.level || 1;
+        document.getElementById('game-experience').textContent = user.experience || 0;
+        document.getElementById('game-health').textContent = user.health || 105;
+        document.getElementById('game-mana').textContent = user.mana || 55;
+        document.getElementById('game-gold').textContent = user.gold || 100;
+        
+        // Отображаем фракцию
+        const factionName = user.faction === 'workers' ? 'Работяги' : 'Креаклы';
+        document.getElementById('game-faction').textContent = factionName;
+        
+        // Устанавливаем эмодзи аватара в зависимости от фракции и пола
+        const avatarElement = document.getElementById('character-avatar-text');
+        if (avatarElement) {
+            let avatar = '👤';
+            if (user.faction === 'workers') {
+                avatar = user.gender === 'male' ? '👷‍♂️' : '👷‍♀️';
+            } else {
+                avatar = user.gender === 'male' ? '🎨' : '👩‍🎨';
+            }
+            avatarElement.textContent = avatar;
         }
     }
     

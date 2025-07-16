@@ -1,11 +1,11 @@
 /**
- * Главный класс приложения с поддержкой новой системы характеристик
+ * Класс для управления авторизацией и регистрацией с новой системой характеристик
  */
-class GameApp {
+class AuthSystem {
     constructor() {
-        this.currentScreen = 'loading-screen';
+        this.storageKey = 'mmo_rpg_users';
+        this.currentUserKey = 'mmo_rpg_current_user';
         this.initializeEventListeners();
-        this.checkAutoLogin();
     }
     
     /**
@@ -13,507 +13,311 @@ class GameApp {
      */
     initializeEventListeners() {
         document.addEventListener('DOMContentLoaded', () => {
-            // Кнопки главного меню
-            const btnRegister = document.getElementById('btn-register');
-            const btnLogin = document.getElementById('btn-login');
-            
-            if (btnRegister) {
-                btnRegister.addEventListener('click', () => this.showScreen('register-screen'));
+            // Форма регистрации
+            const registerForm = document.getElementById('register-form');
+            if (registerForm) {
+                registerForm.addEventListener('submit', (e) => this.handleRegister(e));
             }
             
-            if (btnLogin) {
-                btnLogin.addEventListener('click', () => this.showScreen('login-screen'));
+            // Форма входа
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => this.handleLogin(e));
             }
             
-            // Кнопки "Назад"
-            const btnBack = document.getElementById('btn-back');
-            const btnLoginBack = document.getElementById('btn-login-back');
-            const btnCharBack = document.getElementById('btn-char-back');
-            
-            if (btnBack) {
-                btnBack.addEventListener('click', () => this.showScreen('loading-screen'));
+            // Проверка паролей в реальном времени
+            const passwordRepeat = document.getElementById('password-repeat');
+            if (passwordRepeat) {
+                passwordRepeat.addEventListener('input', () => this.validatePasswordMatch());
             }
             
-            if (btnLoginBack) {
-                btnLoginBack.addEventListener('click', () => this.showScreen('loading-screen'));
+            // Проверка никнейма в реальном времени
+            const nickname = document.getElementById('nickname');
+            if (nickname) {
+                nickname.addEventListener('input', () => this.validateNickname());
             }
-            
-            if (btnCharBack) {
-                btnCharBack.addEventListener('click', () => {
-                    window.gameCharacter.resetStats();
-                    this.showScreen('register-screen');
-                });
-            }
-            
-            // Кнопка создания персонажа
-            const btnCreateCharacter = document.getElementById('btn-create-character');
-            if (btnCreateCharacter) {
-                btnCreateCharacter.addEventListener('click', () => {
-                    window.authSystem.completeCharacterCreation();
-                });
-            }
-            
-            // Кнопка выхода
-            const btnLogout = document.getElementById('btn-logout');
-            if (btnLogout) {
-                btnLogout.addEventListener('click', () => {
-                    window.authSystem.logout();
-                });
-            }
-            
-            // Кнопка тренировки (переход в спортзал)
-            const btnTrain = document.querySelector('.train-btn');
-            if (btnTrain) {
-                btnTrain.addEventListener('click', () => this.showGym());
-            }
-            
-            // Кнопка возврата из спортзала
-            const gymBackBtn = document.getElementById('gym-back-btn');
-            if (gymBackBtn) {
-                gymBackBtn.addEventListener('click', () => this.showScreen('game-screen'));
-            }
-            
-            // Кнопки тренировок в спортзале
-            document.querySelectorAll('.upgrade-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const stat = e.target.dataset.stat;
-                    this.trainStat(stat);
-                });
-            });
         });
     }
     
     /**
-     * Показать определенный экран
+     * Обработка регистрации
      */
-    showScreen(screenId) {
-        // Скрываем все экраны
-        const screens = document.querySelectorAll('.screen');
-        screens.forEach(screen => {
-            screen.classList.remove('active');
-        });
+    handleRegister(e) {
+        e.preventDefault();
+        console.log('handleRegister вызвана, но логика перенесена в app.js');
+    }
+    
+    /**
+     * Обработка входа
+     */
+    handleLogin(e) {
+        e.preventDefault();
         
-        // Показываем нужный экран
-        const targetScreen = document.getElementById(screenId);
-        if (targetScreen) {
-            targetScreen.classList.add('active');
-            this.currentScreen = screenId;
-            
-            // Выполняем специфичные действия для экранов
-            this.onScreenShow(screenId);
+        const formData = new FormData(e.target);
+        const nickname = formData.get('nickname').trim();
+        const password = formData.get('password');
+        
+        console.log('Попытка входа:', { nickname, password });
+        console.log('Сохраненные пользователи:', this.getUsers());
+        
+        const user = this.authenticateUser(nickname, password);
+        console.log('Результат аутентификации:', user);
+        
+        if (user) {
+            this.setCurrentUser(user);
+            console.log('Пользователь установлен, переходим в игру');
+            window.gameApp.showScreen('game-screen');
+            this.displayPlayerInfo(user);
+        } else {
+            console.log('Неверный никнейм или пароль');
         }
     }
     
     /**
-     * Действия при показе экрана
+     * Валидация данных регистрации
      */
-    onScreenShow(screenId) {
-        switch (screenId) {
-            case 'character-screen':
-                // Обновляем отображение характеристик (если функция существует)
-                if (window.gameCharacter && window.gameCharacter.updateStatsDisplay) {
-                    window.gameCharacter.updateStatsDisplay();
-                }
-                break;
-                
-            case 'gym-screen':
-                // Обновляем отображение спортзала
-                const currentUser = window.authSystem.getCurrentUser();
-                if (currentUser) {
-                    this.updateGymDisplay(currentUser);
-                }
-                break;
-                
-            case 'register-screen':
-                this.clearForm('register-form');
-                this.initRegisterButton();
-                break;
-                
-            case 'login-screen':
-                this.clearForm('login-form');
-                break;
-                
-            case 'loading-screen':
-                if (window.tempRegistrationData) {
-                    delete window.tempRegistrationData;
-                }
-                window.gameCharacter.resetStats();
-                break;
+    validateRegistration(nickname, password, passwordRepeat, faction, gender) {
+        if (nickname.length < 3 || nickname.length > 20) {
+            return { isValid: false, message: 'Никнейм должен содержать от 3 до 20 символов' };
+        }
+        
+        if (!/^[a-zA-Zа-яА-Я0-9_-]+$/.test(nickname)) {
+            return { isValid: false, message: 'Никнейм может содержать только буквы, цифры, _ и -' };
+        }
+        
+        if (password.length < 6) {
+            return { isValid: false, message: 'Пароль должен содержать минимум 6 символов' };
+        }
+        
+        if (password !== passwordRepeat) {
+            return { isValid: false, message: 'Пароли не совпадают' };
+        }
+        
+        if (!faction) {
+            return { isValid: false, message: 'Выберите фракцию' };
+        }
+        
+        if (!gender) {
+            return { isValid: false, message: 'Выберите пол персонажа' };
+        }
+        
+        return { isValid: true };
+    }
+    
+    /**
+     * Проверка совпадения паролей
+     */
+    validatePasswordMatch() {
+        const password = document.getElementById('password').value;
+        const passwordRepeat = document.getElementById('password-repeat').value;
+        const repeatInput = document.getElementById('password-repeat');
+        
+        if (passwordRepeat && password !== passwordRepeat) {
+            repeatInput.style.borderColor = '#ff6b6b';
+        } else {
+            repeatInput.style.borderColor = '#444';
         }
     }
     
     /**
-     * Показать спортзал
+     * Проверка никнейма
      */
-    showGym() {
-        const currentUser = window.authSystem.getCurrentUser();
-        if (!currentUser) {
-            alert('Ошибка: пользователь не найден');
-            return;
-        }
+    validateNickname() {
+        const nickname = document.getElementById('nickname').value.trim();
+        const nicknameInput = document.getElementById('nickname');
         
-        // Переходим в спортзал
-        this.showScreen('gym-screen');
-        this.updateGymDisplay(currentUser);
+        if (nickname.length > 0 && !/^[a-zA-Zа-яА-Я0-9_-]+$/.test(nickname)) {
+            nicknameInput.style.borderColor = '#ff6b6b';
+        } else {
+            nicknameInput.style.borderColor = '#444';
+        }
     }
     
     /**
-     * Обновить отображение спортзала
+     * Проверка существования пользователя
      */
-    updateGymDisplay(user) {
-        // Обновляем золото
-        document.getElementById('gym-player-gold').textContent = user.gold || 0;
+    userExists(nickname) {
+        const users = this.getUsers();
+        return users.some(user => user.nickname.toLowerCase() === nickname.toLowerCase());
+    }
+    
+    /**
+     * Простое хеширование пароля
+     */
+    hashPassword(password) {
+        let hash = 0;
+        for (let i = 0; i < password.length; i++) {
+            const char = password.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return hash.toString();
+    }
+    
+    /**
+     * Аутентификация пользователя
+     */
+    authenticateUser(nickname, password) {
+        const users = this.getUsers();
+        const hashedPassword = this.hashPassword(password);
+        console.log('Поиск пользователя:', { nickname, password, hashedPassword });
         
-        // Обновляем характеристики
+        const user = users.find(user => 
+            user.nickname.toLowerCase() === nickname.toLowerCase() && 
+            user.password === hashedPassword
+        );
+        
+        console.log('Найденный пользователь:', user);
+        return user;
+    }
+    
+    /**
+     * Создание нового пользователя с новой системой характеристик
+     */
+    createUser(characterData, password) {
+        const users = this.getUsers();
+        const hashedPassword = this.hashPassword(password);
+        
+        // Создаем персонажа с правильными стартовыми характеристиками
+        const character = new Character();
+        character.setCharacterInfo(characterData.nickname, characterData.faction, characterData.gender);
+        
+        const newUser = {
+            ...character.getCharacterData(),
+            password: hashedPassword,
+            id: this.generateUserId()
+        };
+        
+        console.log('Создаем пользователя с новой системой характеристик:', newUser);
+        
+        users.push(newUser);
+        this.saveUsers(users);
+        
+        return newUser;
+    }
+    
+    /**
+     * Получить всех пользователей из localStorage
+     */
+    getUsers() {
+        const users = localStorage.getItem(this.storageKey);
+        return users ? JSON.parse(users) : [];
+    }
+    
+    /**
+     * Сохранить пользователей в localStorage
+     */
+    saveUsers(users) {
+        localStorage.setItem(this.storageKey, JSON.stringify(users));
+    }
+    
+    /**
+     * Установить текущего пользователя
+     */
+    setCurrentUser(user) {
+        localStorage.setItem(this.currentUserKey, JSON.stringify(user));
+    }
+    
+    /**
+     * Получить текущего пользователя
+     */
+    getCurrentUser() {
+        const user = localStorage.getItem(this.currentUserKey);
+        return user ? JSON.parse(user) : null;
+    }
+    
+    /**
+     * Выход из системы
+     */
+    logout() {
+        localStorage.removeItem(this.currentUserKey);
+        window.gameApp.showScreen('loading-screen');
+    }
+    
+    /**
+     * Генерация уникального ID пользователя
+     */
+    generateUserId() {
+        return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+    
+    /**
+     * Показать ошибку
+     */
+    showError(message) {
+        alert(message);
+    }
+    
+    /**
+     * Показать информацию об игроке с новой системой характеристик
+     */
+    displayPlayerInfo(user) {
+        // Заполняем основные характеристики
         if (user.stats) {
-            document.getElementById('gym-stat-str').textContent = user.stats.str;
-            document.getElementById('gym-stat-end').textContent = user.stats.end;
-            document.getElementById('gym-stat-dex').textContent = user.stats.dex;
-            document.getElementById('gym-stat-int').textContent = user.stats.int;
-            document.getElementById('gym-stat-cha').textContent = user.stats.cha;
-            document.getElementById('gym-stat-lck').textContent = user.stats.lck;
+            document.getElementById('game-stat-str').textContent = user.stats.str || 1;
+            document.getElementById('game-stat-int').textContent = user.stats.int || 1;
+            document.getElementById('game-stat-cha').textContent = user.stats.cha || 1;
+            document.getElementById('game-stat-end').textContent = user.stats.end || 1;
+            document.getElementById('game-stat-dex').textContent = user.stats.dex || 1;
+            document.getElementById('game-stat-lck').textContent = user.stats.lck || 1;
         }
         
-        // Обновляем стоимость тренировок
-        this.updateTrainingCosts(user);
+        // Заполняем информацию
+        document.getElementById('character-display-name').textContent = user.nickname || 'Игрок';
+        document.getElementById('game-level').textContent = user.level || 1;
+        document.getElementById('game-experience').textContent = user.experience || 0;
+        
+        // Рассчитываем HP по новой формуле: 50 + END * 10
+        const calculatedHP = user.stats ? (50 + user.stats.end * 10) : (user.health || 105);
+        document.getElementById('game-health').textContent = calculatedHP;
+        
+        // Убираем ману из отображения (мана больше не используется)
+        const manaElement = document.getElementById('game-mana');
+        if (manaElement) {
+            manaElement.textContent = '-';
+        }
+        
+        document.getElementById('game-gold').textContent = user.gold || 100;
+        
+        // Отображаем фракцию
+        const factionName = user.faction === 'workers' ? 'Работяги' : 'Креаклы';
+        document.getElementById('character-faction-badge').textContent = factionName;
+        
+        console.log('Отображена информация о персонаже с новой системой характеристик');
+        console.log('Рассчитанное HP:', calculatedHP);
     }
     
     /**
-     * Обновить стоимость тренировок
+     * Завершить создание персонажа
      */
-    updateTrainingCosts(user) {
-        const baseCosts = {
-            str: 2.0,   // Самый дорогой
-            end: 1.7,   // Второй по дороговизне
-            dex: 1.2,   // Средний
-            lck: 1.1,   // Чуть дороже базы
-            int: 1.0,   // Базовая цена
-            cha: 0.8    // Дешевый
-        };
+    completeCharacterCreation() {
+        const tempData = window.tempRegistrationData;
         
-        Object.keys(baseCosts).forEach(stat => {
-            const currentLevel = user.stats[stat];
-            const cost = Math.floor(baseCosts[stat] * Math.pow(currentLevel, 1.5) * 10);
-            
-            const costElement = document.getElementById(`gym-cost-${stat}`);
-            const buttonElement = document.querySelector(`[data-stat="${stat}"]`);
-            
-            if (costElement) {
-                costElement.textContent = cost;
-                
-                if (buttonElement) {
-                    // Проверяем, хватает ли денег
-                    if (cost > user.gold) {
-                        buttonElement.disabled = true;
-                        buttonElement.classList.add('cant-afford');
-                        buttonElement.classList.remove('expensive');
-                    } else {
-                        buttonElement.disabled = false;
-                        buttonElement.classList.remove('cant-afford');
-                        
-                        // Красим дорогие статы в красный
-                        if (stat === 'str' || stat === 'end') {
-                            buttonElement.classList.add('expensive');
-                        } else {
-                            buttonElement.classList.remove('expensive');
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    /**
-     * Инициализация кнопки регистрации с новой системой характеристик
-     */
-    initRegisterButton() {
-        console.log('Инициализация кнопки регистрации...');
+        if (!tempData) {
+            this.showError('Ошибка: данные регистрации не найдены. Попробуйте зарегистрироваться заново.');
+            window.gameApp.showScreen('loading-screen');
+            return false;
+        }
         
+        // Создаем пользователя с новой системой характеристик
+        const newUser = this.createUser(tempData, tempData.password);
+        console.log('Новый пользователь создан с новой системой характеристик:', newUser);
+        
+        // Устанавливаем как текущего пользователя
+        this.setCurrentUser(newUser);
+        
+        // Очищаем временные данные
+        delete window.tempRegistrationData;
+        
+        // Переходим в игру
         setTimeout(() => {
-            const btnContinueRegistration = document.getElementById('btn-continue-registration');
-            
-            if (btnContinueRegistration) {
-                // Убираем старые обработчики
-                const newBtn = btnContinueRegistration.cloneNode(true);
-                btnContinueRegistration.parentNode.replaceChild(newBtn, btnContinueRegistration);
-                
-                newBtn.addEventListener('click', () => {
-                    console.log('Кнопка Продолжить нажата');
-                    
-                    try {
-                        const form = document.getElementById('register-form');
-                        if (!form) {
-                            console.error('Форма регистрации не найдена');
-                            return;
-                        }
-                        
-                        const formData = new FormData(form);
-                        const nickname = formData.get('nickname')?.trim() || '';
-                        const password = formData.get('password') || '';
-                        const passwordRepeat = formData.get('password-repeat') || '';
-                        const faction = formData.get('faction') || '';
-                        const gender = formData.get('gender') || '';
-                        
-                        console.log('Данные формы:', { nickname, password, passwordRepeat, faction, gender });
-                        
-                        // Валидация
-                        if (nickname.length < 3) {
-                            alert('Никнейм должен содержать минимум 3 символа');
-                            return;
-                        }
-                        
-                        if (password.length < 6) {
-                            alert('Пароль должен содержать минимум 6 символов');
-                            return;
-                        }
-                        
-                        if (password !== passwordRepeat) {
-                            alert('Пароли не совпадают');
-                            return;
-                        }
-                        
-                        if (!faction) {
-                            alert('Выберите фракцию');
-                            return;
-                        }
-                        
-                        if (!gender) {
-                            alert('Выберите пол персонажа');
-                            return;
-                        }
-                        
-                        // Проверка существования пользователя
-                        if (window.authSystem && window.authSystem.userExists(nickname)) {
-                            alert('Пользователь с таким никнеймом уже существует!');
-                            return;
-                        }
-                        
-                        // Создаем персонажа с новой системой характеристик
-                        window.gameCharacter.setCharacterInfo(nickname, faction, gender);
-                        
-                        const characterData = window.gameCharacter.getCharacterData();
-                        console.log('Создаем персонажа с новой системой:', characterData);
-                        
-                        // Создаем пользователя
-                        if (window.authSystem) {
-                            const newUser = window.authSystem.createUser(characterData, password);
-                            window.authSystem.setCurrentUser(newUser);
-                            
-                            console.log('Пользователь создан:', newUser);
-                            
-                            // Переходим в игру
-                            this.showScreen('game-screen');
-                            window.authSystem.displayPlayerInfo(newUser);
-                        } else {
-                            console.error('authSystem не найден');
-                        }
-                        
-                    } catch (error) {
-                        console.error('Ошибка при создании персонажа:', error);
-                        alert('Произошла ошибка при создании персонажа');
-                    }
-                });
-                
-                console.log('Обработчик события добавлен к кнопке');
-            } else {
-                console.error('Кнопка btn-continue-registration не найдена!');
-            }
+            window.gameApp.showScreen('game-screen');
+            this.displayPlayerInfo(newUser);
         }, 100);
-    }
-    
-    /**
-     * Тренировка характеристики с новой системой стоимости
-     */
-    trainStat(statName) {
-        const currentUser = window.authSystem.getCurrentUser();
-        if (!currentUser) return;
         
-        // Базовые множители стоимости
-        const baseCosts = {
-            str: 2.0,   // Самый дорогой
-            end: 1.7,   // Второй по дороговизне
-            dex: 1.2,   // Средний
-            lck: 1.1,   // Чуть дороже базы
-            int: 1.0,   // Базовая цена
-            cha: 0.8    // Дешевый
-        };
-        
-        const currentLevel = currentUser.stats[statName];
-        const cost = Math.floor(baseCosts[statName] * Math.pow(currentLevel, 1.5) * 10);
-        
-        if (currentUser.gold < cost) {
-            alert(`Недостаточно золота! Нужно ${cost}, у вас ${currentUser.gold}`);
-            return;
-        }
-        
-        // Подтверждение тренировки
-        const statNames = {
-            str: 'Силу',
-            end: 'Выносливость', 
-            dex: 'Реакцию',
-            int: 'Интеллект',
-            cha: 'Харизму',
-            lck: 'Удачу'
-        };
-        
-        if (confirm(`Потратить ${cost} золота на тренировку "${statNames[statName]}"?\n(${currentLevel} → ${currentLevel + 1})`)) {
-            // Увеличиваем характеристику и тратим золото
-            currentUser.stats[statName] += 1;
-            currentUser.gold -= cost;
-            
-            // Если тренируем выносливость, пересчитываем здоровье
-            if (statName === 'end') {
-                currentUser.health = 50 + currentUser.stats.end * 10;
-            }
-            
-            // Сохраняем обновленного пользователя
-            const users = window.authSystem.getUsers();
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            if (userIndex !== -1) {
-                users[userIndex] = currentUser;
-                window.authSystem.saveUsers(users);
-                window.authSystem.setCurrentUser(currentUser);
-            }
-            
-            // Обновляем отображение в спортзале
-            this.updateGymDisplay(currentUser);
-            
-            // Обновляем отображение в основном интерфейсе
-            window.authSystem.displayPlayerInfo(currentUser);
-            
-            alert(`Тренировка завершена!\n${statNames[statName]} увеличена до ${currentUser.stats[statName]}\nОсталось золота: ${currentUser.gold}`);
-            
-            console.log('Тренировка завершена:', {
-                stat: statName,
-                newLevel: currentUser.stats[statName],
-                goldSpent: cost,
-                remainingGold: currentUser.gold
-            });
-        }
-    }
-    
-    /**
-     * Очистить форму
-     */
-    clearForm(formId) {
-        const form = document.getElementById(formId);
-        if (form) {
-            form.reset();
-            
-            // Сбрасываем стили валидации
-            const inputs = form.querySelectorAll('input');
-            inputs.forEach(input => {
-                input.style.borderColor = '#444';
-            });
-        }
-    }
-    
-    /**
-     * Проверка автоматического входа
-     */
-    checkAutoLogin() {
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const currentUser = window.authSystem.getCurrentUser();
-                if (currentUser) {
-                    this.showScreen('game-screen');
-                    window.authSystem.displayPlayerInfo(currentUser);
-                } else {
-                    this.showScreen('loading-screen');
-                }
-            }, 100);
-        });
-    }
-    
-    /**
-     * Показать уведомление
-     */
-    showNotification(message, type = 'info') {
-        console.log(`[${type.toUpperCase()}] ${message}`);
-        
-        if (type === 'error') {
-            alert(`Ошибка: ${message}`);
-        } else if (type === 'success') {
-            alert(`Успех: ${message}`);
-        }
-    }
-    
-    /**
-     * Получить статистику игры
-     */
-    getGameStats() {
-        const users = window.authSystem.getUsers();
-        const workersCount = users.filter(user => user.faction === 'workers').length;
-        const creativesCount = users.filter(user => user.faction === 'creatives').length;
-        
-        return {
-            totalUsers: users.length,
-            workersCount,
-            creativesCount,
-            currentUser: window.authSystem.getCurrentUser()
-        };
-    }
-    
-    /**
-     * Дебаг информация с новой системой характеристик
-     */
-    getDebugInfo() {
-        const currentUser = window.authSystem.getCurrentUser();
-        let characterInfo = null;
-        
-        if (currentUser && currentUser.stats) {
-            // Создаем временный объект Character для расчета скрытых характеристик
-            const tempCharacter = new Character();
-            tempCharacter.stats = currentUser.stats;
-            characterInfo = tempCharacter.getCalculatedStats();
-        }
-        
-        return {
-            currentScreen: this.currentScreen,
-            gameStats: this.getGameStats(),
-            currentUserStats: currentUser ? currentUser.stats : null,
-            calculatedStats: characterInfo,
-            localStorage: {
-                users: localStorage.getItem('mmo_rpg_users'),
-                currentUser: localStorage.getItem('mmo_rpg_current_user')
-            }
-        };
+        return true;
     }
 }
 
-// Создаем глобальный экземпляр приложения
-window.gameApp = new GameApp();
-
-// Добавляем глобальные функции для дебага
-window.debugGame = () => {
-    console.log('=== DEBUG INFO ===');
-    console.log(window.gameApp.getDebugInfo());
-};
-
-window.debugCharacterCalculations = () => {
-    const currentUser = window.authSystem.getCurrentUser();
-    if (currentUser && currentUser.stats) {
-        const tempCharacter = new Character();
-        tempCharacter.stats = currentUser.stats;
-        
-        console.log('=== РАСЧЕТЫ ХАРАКТЕРИСТИК ===');
-        console.log('Основные статы:', currentUser.stats);
-        console.log('Рассчитанные характеристики:', tempCharacter.getCalculatedStats());
-        console.log('HP:', tempCharacter.calculateHealth());
-        console.log('Урон:', tempCharacter.calculateDamage());
-        console.log('Шанс двойного удара:', tempCharacter.calculateDoubleHitChance() + '%');
-        console.log('Шанс уворота:', tempCharacter.calculateDodgeChance() + '%');
-        console.log('Защита:', tempCharacter.calculateDefense());
-    } else {
-        console.log('Пользователь не найден или нет характеристик');
-    }
-};
-
-window.clearGameData = () => {
-    if (confirm('Удалить все данные игры? Это действие нельзя отменить!')) {
-        localStorage.removeItem('mmo_rpg_users');
-        localStorage.removeItem('mmo_rpg_current_user');
-        window.gameApp.showScreen('loading-screen');
-        alert('Данные игры очищены!');
-    }
-};
+// Создаем глобальный экземпляр системы авторизации
+window.authSystem = new AuthSystem();

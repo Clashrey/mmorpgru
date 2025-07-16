@@ -17,37 +17,39 @@ class BattleSystem {
     initializeEventListeners() {
         document.addEventListener('DOMContentLoaded', () => {
             // Кнопка арены в основном интерфейсе
-            const arenaBtn = document.querySelector('.action-btn');
-            if (arenaBtn && arenaBtn.textContent.includes('Арена')) {
-                arenaBtn.addEventListener('click', () => this.showArena());
-            }
-            
-            // Кнопки в арене
-            const findPlayerBtn = document.getElementById('find-player-btn');
-            const findMobBtn = document.getElementById('find-mob-btn');
-            const startFightBtn = document.getElementById('start-fight-btn');
-            const continueBtn = document.getElementById('continue-btn');
-            const arenaBackBtn = document.getElementById('arena-back-btn');
-            
-            if (findPlayerBtn) {
-                findPlayerBtn.addEventListener('click', () => this.findOpponent('player'));
-            }
-            
-            if (findMobBtn) {
-                findMobBtn.addEventListener('click', () => this.findOpponent('mob'));
-            }
-            
-            if (startFightBtn) {
-                startFightBtn.addEventListener('click', () => this.startBattle());
-            }
-            
-            if (continueBtn) {
-                continueBtn.addEventListener('click', () => this.returnToArena());
-            }
-            
-            if (arenaBackBtn) {
-                arenaBackBtn.addEventListener('click', () => this.backToGame());
-            }
+            setTimeout(() => {
+                const arenaBtn = document.querySelector('.action-btn');
+                if (arenaBtn && arenaBtn.textContent.includes('Арена')) {
+                    arenaBtn.addEventListener('click', () => this.showArena());
+                }
+                
+                // Кнопки в арене
+                const findPlayerBtn = document.getElementById('find-player-btn');
+                const findMobBtn = document.getElementById('find-mob-btn');
+                const startFightBtn = document.getElementById('start-fight-btn');
+                const continueBtn = document.getElementById('continue-btn');
+                const arenaBackBtn = document.getElementById('arena-back-btn');
+                
+                if (findPlayerBtn) {
+                    findPlayerBtn.addEventListener('click', () => this.findOpponent('player'));
+                }
+                
+                if (findMobBtn) {
+                    findMobBtn.addEventListener('click', () => this.findOpponent('mob'));
+                }
+                
+                if (startFightBtn) {
+                    startFightBtn.addEventListener('click', () => this.startBattle());
+                }
+                
+                if (continueBtn) {
+                    continueBtn.addEventListener('click', () => this.returnToArena());
+                }
+                
+                if (arenaBackBtn) {
+                    arenaBackBtn.addEventListener('click', () => this.backToGame());
+                }
+            }, 500);
         });
     }
     
@@ -208,6 +210,7 @@ class BattleSystem {
         document.getElementById('battle-result').style.display = 'block';
         document.getElementById('battle-log').style.display = 'none';
         document.getElementById('battle-outcome').style.display = 'none';
+        document.getElementById('start-fight-btn').style.display = 'block';
     }
     
     /**
@@ -423,11 +426,12 @@ class BattleSystem {
         // Показываем награды
         if (battle.rewards.exp > 0) {
             document.getElementById('reward-exp').textContent = battle.rewards.exp;
+            document.querySelector('.reward-item').style.display = 'flex';
         } else {
             document.querySelector('.reward-item').style.display = 'none';
         }
         
-        document.getElementById('reward-gold').textContent = battle.rewards.gold;
+        document.getElementById('reward-gold').textContent = battle.rewards.gold >= 0 ? `+${battle.rewards.gold}` : battle.rewards.gold;
         
         // Применяем награды к игроку
         this.applyRewards();

@@ -1,4 +1,76 @@
-<!DOCTYPE html>
+<!-- Экран арены для дуэлей -->
+    <div id="arena-screen" class="screen">
+        <div class="arena-container">
+            <div class="arena-header">
+                <h1>⚔️ АРЕНА</h1>
+                <p>Сражайся с другими игроками или мобами!</p>
+            </div>
+
+            <!-- Информация об игроке -->
+            <div class="player-battle-info">
+                <div class="battle-player-card">
+                    <h3 id="arena-player-name">Игрок</h3>
+                    <div class="battle-stats">
+                        <div class="battle-stat">
+                            <span class="stat-icon">❤️</span>
+                            <span class="stat-value" id="arena-player-hp">100</span>
+                        </div>
+                        <div class="battle-stat">
+                            <span class="stat-icon">⚔️</span>
+                            <span class="stat-value" id="arena-player-power">25</span>
+                        </div>
+                        <div class="battle-stat">
+                            <span class="stat-icon">🛡️</span>
+                            <span class="stat-value" id="arena-player-defense">10</span>
+                        </div>
+                    </div>
+                    <div class="faction-badge" id="arena-player-faction">Работяги</div>
+                </div>
+            </div>
+
+            <!-- Кнопки поиска боя -->
+            <div class="battle-search">
+                <button class="battle-btn primary" id="find-player-btn">
+                    🔍 Найти противника
+                </button>
+                <button class="battle-btn secondary" id="find-mob-btn">
+                    🐺 Сразиться с мобом
+                </button>
+            </div>
+
+            <!-- Результат поиска/боя -->
+            <div class="battle-result" id="battle-result" style="display: none;">
+                <div class="vs-section">
+                    <div class="fighter left">
+                        <h4 id="fighter1-name">Вы</h4>
+                        <div class="fighter-stats">
+                            <div>❤️ <span id="fighter1-hp">100</span></div>
+                            <div>⚔️ <span id="fighter1-attack">25</span></div>
+                            <div>🛡️ <span id="fighter1-defense">10</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="vs-divider">
+                        <span class="vs-text">VS</span>
+                    </div>
+                    
+                    <div class="fighter right">
+                        <h4 id="fighter2-name">Противник</h4>
+                        <div class="fighter-stats">
+                            <div>❤️ <span id="fighter2-hp">90</span></div>
+                            <div>⚔️ <span id="fighter2-attack">20</span></div>
+                            <div>🛡️ <span id="fighter2-defense">8</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Кнопка начать бой -->
+                <button class="battle-btn fight" id="start-fight-btn">
+                    ⚔️ НАЧАТЬ БОЙ
+                </button>
+
+                <!-- Лог боя -->
+                <div class="battle-log" id="battle-log"<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -121,6 +193,113 @@
                     <button type="submit" class="btn-primary">Войти</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Экран арены для дуэлей -->
+    <div id="arena-screen" class="screen">
+        <div class="arena-container">
+            <div class="arena-header">
+                <h1>⚔️ АРЕНА</h1>
+                <p>Сражайся с другими игроками или мобами!</p>
+            </div>
+
+            <!-- Информация об игроке -->
+            <div class="player-battle-info">
+                <div class="battle-player-card">
+                    <h3 id="arena-player-name">Игрок</h3>
+                    <div class="battle-stats">
+                        <div class="battle-stat">
+                            <span class="stat-icon">❤️</span>
+                            <span class="stat-value" id="arena-player-hp">100</span>
+                        </div>
+                        <div class="battle-stat">
+                            <span class="stat-icon">⚔️</span>
+                            <span class="stat-value" id="arena-player-attack">25</span>
+                        </div>
+                        <div class="battle-stat">
+                            <span class="stat-icon">🛡️</span>
+                            <span class="stat-value" id="arena-player-defense">10</span>
+                        </div>
+                    </div>
+                    <div class="faction-badge" id="arena-player-faction">Работяги</div>
+                </div>
+            </div>
+
+            <!-- Кнопки поиска боя -->
+            <div class="battle-search">
+                <button class="battle-btn primary" id="find-player-btn">
+                    🔍 Найти противника
+                </button>
+                <button class="battle-btn secondary" id="find-mob-btn">
+                    🐺 Сразиться с мобом
+                </button>
+            </div>
+
+            <!-- Результат поиска/боя -->
+            <div class="battle-result" id="battle-result" style="display: none;">
+                <div class="vs-section">
+                    <div class="fighter left">
+                        <h4 id="fighter1-name">Вы</h4>
+                        <div class="fighter-stats">
+                            <div>❤️ <span id="fighter1-hp">100</span></div>
+                            <div>⚔️ <span id="fighter1-attack">25</span></div>
+                            <div>🛡️ <span id="fighter1-defense">10</span></div>
+                        </div>
+                        <div class="fighter-faction" id="fighter1-faction">Работяги</div>
+                    </div>
+                    
+                    <div class="vs-divider">
+                        <span class="vs-text">VS</span>
+                    </div>
+                    
+                    <div class="fighter right">
+                        <h4 id="fighter2-name">Противник</h4>
+                        <div class="fighter-stats">
+                            <div>❤️ <span id="fighter2-hp">90</span></div>
+                            <div>⚔️ <span id="fighter2-attack">20</span></div>
+                            <div>🛡️ <span id="fighter2-defense">8</span></div>
+                        </div>
+                        <div class="fighter-faction" id="fighter2-faction">Креаклы</div>
+                    </div>
+                </div>
+
+                <!-- Кнопка начать бой -->
+                <button class="battle-btn fight" id="start-fight-btn">
+                    ⚔️ НАЧАТЬ БОЙ
+                </button>
+
+                <!-- Лог боя -->
+                <div class="battle-log" id="battle-log" style="display: none;">
+                    <h4>📜 Ход боя:</h4>
+                    <div class="log-entries" id="log-entries"></div>
+                </div>
+
+                <!-- Результат боя -->
+                <div class="battle-outcome" id="battle-outcome" style="display: none;">
+                    <div class="outcome-header">
+                        <h3 id="outcome-title">🏆 ПОБЕДА!</h3>
+                        <p id="outcome-description">Вы одержали убедительную победу!</p>
+                    </div>
+                    <div class="rewards">
+                        <h4>Награды:</h4>
+                        <div class="reward-item">
+                            <span class="reward-icon">⭐</span>
+                            <span class="reward-text">Опыт: +<span id="reward-exp">10</span></span>
+                        </div>
+                        <div class="reward-item">
+                            <span class="reward-icon">💰</span>
+                            <span class="reward-text">Золото: +<span id="reward-gold">50</span></span>
+                        </div>
+                    </div>
+                    <button class="battle-btn primary" id="continue-btn">Продолжить</button>
+                </div>
+            </div>
+
+            <!-- Кнопки управления -->
+            <div class="arena-controls">
+                <button class="arena-btn secondary" id="arena-back-btn">🏠 Вернуться в игру</button>
+            </div>
         </div>
     </div>
 
@@ -289,7 +468,7 @@
                     </div>
                     
                     <div class="action-buttons">
-                        <button class="action-btn">⚔️ Бой</button>
+                        <button class="action-btn">⚔️ Арена</button>
                         <button class="action-btn">🗺️ Карта</button>
                         <button class="action-btn">🎒 Инвентарь</button>
                         <button class="action-btn">👥 Чат</button>

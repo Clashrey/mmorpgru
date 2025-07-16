@@ -82,6 +82,35 @@ class Character {
         return isValid;
     }
 }
+    
+    /**
+     * Установить информацию о персонаже
+     */
+    setCharacterInfo(nickname, faction, gender) {
+        this.nickname = nickname;
+        this.faction = faction;
+        this.gender = gender;
+        
+        // Убираем вызов updateCharacterPreview() так как экран характеристик не используется
+        console.log('Информация о персонаже установлена:', { nickname, faction, gender });
+    }
+    
+    /**
+     * Сбросить характеристики к базовым значениям
+     */
+    resetStats() {
+        this.stats = {
+            str: 1,
+            int: 1,
+            cha: 1,
+            end: 1,
+            dex: 1,
+            lck: 1
+        };
+        this.freePoints = 0;
+        // Убираем вызов updateStatsDisplay() так как экран характеристик больше не используется
+    }
+}
 
 // Создаем глобальный экземпляр персонажа
 window.gameCharacter = new Character();

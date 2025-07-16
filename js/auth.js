@@ -44,44 +44,9 @@ class AuthSystem {
      */
     handleRegister(e) {
         e.preventDefault();
-        
-        const formData = new FormData(e.target);
-        const nickname = formData.get('nickname').trim();
-        const password = formData.get('password');
-        const passwordRepeat = formData.get('password-repeat');
-        const faction = formData.get('faction');
-        const gender = formData.get('gender');
-        
-        console.log('Данные регистрации:', { nickname, password, passwordRepeat, faction, gender });
-        
-        // Валидация
-        const validation = this.validateRegistration(nickname, password, passwordRepeat, faction, gender);
-        if (!validation.isValid) {
-            this.showError(validation.message);
-            return;
-        }
-        
-        // Проверка существования пользователя
-        if (this.userExists(nickname)) {
-            this.showError('Пользователь с таким никнеймом уже существует!');
-            return;
-        }
-        
-        // Сохраняем данные регистрации во временном объекте
-        window.tempRegistrationData = {
-            nickname,
-            password,
-            faction,
-            gender
-        };
-        
-        console.log('Временные данные сохранены:', window.tempRegistrationData);
-        
-        // Передаем данные в компонент персонажа
-        window.gameCharacter.setCharacterInfo(nickname, faction, gender);
-        
-        // Переходим к созданию персонажа
-        window.gameApp.showScreen('character-screen');
+        // Эта функция больше не нужна, так как логика перенесена в app.js
+        // Оставляем для совместимости
+        console.log('handleRegister вызвана, но логика перенесена в app.js');
     }
     
     /**
@@ -180,14 +145,34 @@ class AuthSystem {
     }
     
     /**
+     * Простое хеширование пароля
+     */
+    hashPassword(password) {
+        // Простой хеш для демо версии (в продакшене использовать bcrypt)
+        let hash = 0;
+        for (let i = 0; i < password.length; i++) {
+            const char = password.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Конвертация в 32-битное число
+        }
+        return hash.toString();
+    }
+    
+    /**
      * Аутентификация пользователя
      */
     authenticateUser(nickname, password) {
         const users = this.getUsers();
-        return users.find(user => 
+        const hashedPassword = this.hashPassword(password);
+        console.log('Поиск пользователя:', { nickname, password, hashedPassword });
+        
+        const user = users.find(user => 
             user.nickname.toLowerCase() === nickname.toLowerCase() && 
-            user.password === password
+            user.password === hashedPassword
         );
+        
+        console.log('Найденный пользователь:', user);
+        return user;
     }
     
     /**
@@ -195,11 +180,15 @@ class AuthSystem {
      */
     createUser(characterData, password) {
         const users = this.getUsers();
+        const hashedPassword = this.hashPassword(password);
+        
         const newUser = {
             ...characterData,
-            password: password,
+            password: hashedPassword, // Сохраняем хешированный пароль
             id: this.generateUserId()
         };
+        
+        console.log('Создаем пользователя:', newUser);
         
         users.push(newUser);
         this.saveUsers(users);

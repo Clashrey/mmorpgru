@@ -109,6 +109,13 @@ class GameApp {
      */
     onScreenShow(screenId) {
         switch (screenId) {
+            case 'character-screen':
+                // Обновляем отображение характеристик (если функция существует)
+                if (window.gameCharacter && window.gameCharacter.updateStatsDisplay) {
+                    window.gameCharacter.updateStatsDisplay();
+                }
+                break;
+                
             case 'gym-screen':
                 // Обновляем отображение спортзала
                 const currentUser = window.authSystem.getCurrentUser();

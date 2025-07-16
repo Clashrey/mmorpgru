@@ -275,18 +275,6 @@ class AuthSystem {
         // Отображаем фракцию
         const factionName = user.faction === 'workers' ? 'Работяги' : 'Креаклы';
         document.getElementById('character-faction-badge').textContent = factionName;
-        
-        // Устанавливаем эмодзи аватара в зависимости от фракции и пола
-        const avatarElement = document.getElementById('character-avatar-text');
-        if (avatarElement) {
-            let avatar = '👤';
-            if (user.faction === 'workers') {
-                avatar = user.gender === 'male' ? '👷‍♂️' : '👷‍♀️';
-            } else {
-                avatar = user.gender === 'male' ? '🎨' : '👩‍🎨';
-            }
-            avatarElement.textContent = avatar;
-        }
     }
     
     /**

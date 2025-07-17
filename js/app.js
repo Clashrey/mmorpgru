@@ -561,7 +561,12 @@ class GameApp {
         const currentUser = window.authSystem.getCurrentUser();
         const battle = this.currentBattle;
         
-        if (!currentUser || !battle.rewards) return;
+        if (!currentUser || !battle || !battle.rewards) {
+            console.error('Не удалось применить награды:', { currentUser, battle });
+            return;
+        }
+        
+        console.log('Применяем награды:', battle.rewards);
         
         // Применяем опыт
         if (battle.rewards.exp > 0) {
@@ -574,33 +579,68 @@ class GameApp {
                 currentUser.experience = 0;
                 
                 // Повышаем все статы на 1
-                Object.keys(currentUser.stats).forEach(stat => {
-                    currentUser.stats[stat] += 1;
-                });
+                if (currentUser.stats) {
+                    Object.keys(currentUser.stats).forEach(stat => {
+                        currentUser.stats[stat] += 1;
+                    });
+                }
                 
                 // Даем 50 золота за повышение уровня
                 currentUser.gold = (currentUser.gold || 0) + 50;
                 
                 // Пересчитываем здоровье
-                currentUser.health = 50 + currentUser.stats.end * 10;
+                currentUser.health = 50 + (currentUser.stats?.end || 1) * 10;
                 
                 console.log(`🎉 ПОВЫШЕНИЕ УРОВНЯ! Новый уровень: ${currentUser.level}`);
+                
+                // Показываем уведомление о повышении уровня
+                setTimeout(() => {
+                    alert(`🎉 Поздравляем! Вы достигли ${currentUser.level} уровня!\nВсе характеристики увеличены на 1.\nБонус: +50 золота!`);
+                }, 500);
             }
         }
         
         // Применяем золото
         currentUser.gold = Math.max(0, (currentUser.gold || 0) + battle.rewards.gold);
         
-        // Сохраняем изменения
-        const users = window.authSystem.getUsers();
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        if (userIndex !== -1) {
-            users[userIndex] = currentUser;
-            window.authSystem.saveUsers(users);
-            window.authSystem.setCurrentUser(currentUser);
+        console.log('Обновленный пользователь:', currentUser);
+        
+        // ВАЖНО: Сохраняем изменения в localStorage
+        try {
+            // Получаем всех пользователей
+            const users = window.authSystem.getUsers();
+            
+            // Находим и обновляем текущего пользователя
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex] = currentUser;
+                
+                // Сохраняем обновленный список пользователей
+                window.authSystem.saveUsers(users);
+                
+                // Обновляем текущего пользователя в сессии
+                window.authSystem.setCurrentUser(currentUser);
+                
+                console.log('✅ Изменения сохранены в localStorage');
+                
+                // Обновляем отображение после небольшой задержки
+                setTimeout(() => {
+                    window.authSystem.displayPlayerInfo(currentUser);
+                }, 100);
+            } else {
+                console.error('❌ Пользователь не найден в списке!');
+            }
+        } catch (error) {
+            console.error('❌ Ошибка сохранения наград:', error);
         }
         
-        console.log('Награды применены:', battle.rewards);
+        console.log('Награды применены:', {
+            exp: battle.rewards.exp,
+            gold: battle.rewards.gold,
+            newGold: currentUser.gold,
+            newExp: currentUser.experience,
+            level: currentUser.level
+        });
     }
     
     /**
@@ -1024,3 +1064,53 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Кнопки арены привязаны!');
     }, 2000);
 });
+
+// Функция для проверки текущего состояния игрока
+window.checkPlayerState = () => {
+    const currentUser = window.authSystem.getCurrentUser();
+    const users = window.authSystem.getUsers();
+    const userInList = users.find(u => u.id === currentUser?.id);
+    
+    console.log('=== СОСТОЯНИЕ ИГРОКА ===');
+    console.log('Текущий пользователь (сессия):', currentUser);
+    console.log('Пользователь в списке:', userInList);
+    console.log('Золото:', currentUser?.gold);
+    console.log('Опыт:', currentUser?.experience);
+    console.log('Уровень:', currentUser?.level);
+    console.log('localStorage (users):', localStorage.getItem('mmo_rpg_users'));
+    console.log('localStorage (current):', localStorage.getItem('mmo_rpg_current_user'));
+};
+
+// Функция для ручного добавления золота (для тестов)
+window.addGold = (amount) => {
+    const currentUser = window.authSystem.getCurrentUser();
+    if (!currentUser) {
+        console.error('Нет активного пользователя');
+        return;
+    }
+    
+    currentUser.gold = (currentUser.gold || 0) + amount;
+    
+    // Сохраняем изменения
+    const users = window.authSystem.getUsers();
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    if (userIndex !== -1) {
+        users[userIndex] = currentUser;
+        window.authSystem.saveUsers(users);
+        window.authSystem.setCurrentUser(currentUser);
+        window.authSystem.displayPlayerInfo(currentUser);
+        console.log(`✅ Добавлено ${amount} золота. Новый баланс: ${currentUser.gold}`);
+    }
+};
+
+// Функция для проверки последнего боя
+window.checkLastBattle = () => {
+    if (window.gameApp && window.gameApp.currentBattle) {
+        console.log('=== ПОСЛЕДНИЙ БОЙ ===');
+        console.log('Данные боя:', window.gameApp.currentBattle);
+        console.log('Награды:', window.gameApp.currentBattle.rewards);
+        console.log('Победитель:', window.gameApp.currentBattle.winner);
+    } else {
+        console.log('Нет данных о последнем бое');
+    }
+};

@@ -1,4 +1,6 @@
 // api/players.js - Vercel Serverless Function для работы с игроками
+export const runtime = 'nodejs18'; // Указываем версию Node.js
+
 export default async function handler(req, res) {
     // Включаем CORS
     res.setHeader('Access-Control-Allow-Origin', '*');

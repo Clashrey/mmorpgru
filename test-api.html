@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест API - ММО-РПГ</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1e1e2f;
+            color: #edf2f4;
+        }
+        
+        .container {
+            background: #2b2d42;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid #8d99ae;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #edf2f4;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            background: #5e60ce;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        button:hover {
+            background: #4a4ebd;
+            transform: translateY(-2px);
+        }
+        
+        .results {
+            background: #3a3f5b;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            color: #28a745;
+        }
+        
+        .error {
+            color: #e74c3c;
+        }
+        
+        .info {
+            color: #17a2b8;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Тестирование API</h1>
+        
+        <div class="controls">
+            <button onclick="testAPI.checkConnection()">🔌 Проверить соединение</button>
+            <button onclick="testAPI.testGetPlayers()">👥 Получить игроков</button>
+            <button onclick="testAPI.testJoinGame()">🎮 Присоединиться к игре</button>
+            <button onclick="testAPI.testMove()">🚶 Тест движения</button>
+            <button onclick="testAPI.clearResults()">🧹 Очистить</button>
+        </div>
+        
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        const testAPI = {
+            apiUrl: '/api/players',
+            playerId: null,
+            
+            log(message, type = 'info') {
+                const results = document.getElementById('results');
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = document.createElement('div');
+                entry.className = type;
+                entry.textContent = `[${timestamp}] ${message}`;
+                results.appendChild(entry);
+                results.scrollTop = results.scrollHeight;
+            },
+            
+            clearResults() {
+                document.getElementById('results').innerHTML = '';
+            },
+            
+            async checkConnection() {
+                this.log('Проверка соединения с API...');
+                try {
+                    const response = await fetch(this.apiUrl);
+                    this.log(`Статус: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.log('Данные получены: ' + JSON.stringify(data, null, 2), 'success');
+                    }
+                } catch (error) {
+                    this.log('Ошибка: ' + error.message, 'error');
+                }
+            },
+            
+            async testGetPlayers() {
+                this.log('Получение списка игроков...');
+                try {
+                    const response = await fetch(this.apiUrl);
+                    const data = await response.json();
+                    
+                    this.log(`Игроков онлайн: ${data.totalPlayers}`, 'info');
+                    this.log(`Активных мобов: ${data.mobs.length}`, 'info');
+                    
+                    if (data.players.length > 0) {
+                        this.log('Игроки:', 'info');
+                        data.players.forEach(player => {
+                            this.log(`  - ${player.nickname} (${player.faction}) [${player.x}, ${player.y}]`, 'success');
+                        });
+                    }
+                } catch (error) {
+                    this.log('Ошибка: ' + error.message, 'error');
+                }
+            },
+            
+            async testJoinGame() {
+                this.log('Присоединение к игре...');
+                const playerData = {
+                    nickname: 'Тестер_' + Math.floor(Math.random() * 1000),
+                    faction: Math.random() > 0.5 ? 'workers' : 'creatives',
+                    level: 1,
+                    stats: {
+                        str: 5, end: 5, dex: 3, int: 1, cha: 1, lck: 3
+                    }
+                };
+                
+                try {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'join',
+                            playerData: playerData
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.playerId = data.playerId;
+                        this.log(`Успешно! ID игрока: ${this.playerId}`, 'success');
+                        this.log(`Никнейм: ${playerData.nickname}`, 'info');
+                        this.log(`Фракция: ${playerData.faction === 'workers' ? 'Работяги' : 'Креаклы'}`, 'info');
+                    } else {
+                        this.log('Ошибка: ' + (data.error || 'Неизвестная ошибка'), 'error');
+                    }
+                } catch (error) {
+                    this.log('Ошибка: ' + error.message, 'error');
+                }
+            },
+            
+            async testMove() {
+                if (!this.playerId) {
+                    this.log('Сначала присоединитесь к игре!', 'error');
+                    return;
+                }
+                
+                const direction = ['up', 'down', 'left', 'right'][Math.floor(Math.random() * 4)];
+                this.log(`Движение: ${direction}...`);
+                
+                try {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'move',
+                            playerData: {
+                                id: this.playerId,
+                                direction: direction
+                            }
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.log(`Новая позиция: [${data.newPosition.x}, ${data.newPosition.y}]`, 'success');
+                        
+                        if (data.mobsEncountered.length > 0) {
+                            this.log('Встречены мобы:', 'info');
+                            data.mobsEncountered.forEach(mob => {
+                                this.log(`  - ${mob.name} (HP: ${mob.hp}/${mob.maxHp})`, 'error');
+                            });
+                        }
+                    }
+                } catch (error) {
+                    this.log('Ошибка: ' + error.message, 'error');
+                }
+            }
+        };
+        
+        // Автоматическая проверка при загрузке
+        window.onload = () => {
+            testAPI.log('Страница тестирования API загружена', 'info');
+            testAPI.log('URL API: ' + testAPI.apiUrl, 'info');
+        };
+    </script>
+</body>
+</html>

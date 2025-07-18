@@ -397,9 +397,10 @@
                     
                     <div class="action-buttons">
                         <button class="action-btn" id="arena-btn">⚔️ Арена</button>
-                        <button class="action-btn">🗺️ Карта</button>
+                        <button class="action-btn" id="map-location-btn">🗺️ Карта</button>
                         <button class="action-btn">🎒 Инвентарь</button>
-                        <button class="action-btn">👥 Чат</button>
+                        <button class="action-btn" id="chat-btn">👥 Чат</button>
+                        <button class="action-btn" id="rating-btn">🏆 Рейтинг</button>
                     </div>
                 </div>
 
@@ -467,6 +468,43 @@
         </div>
     </div>
 
+    <!-- Модальное окно чата -->
+    <div id="chat-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>👥 Глобальный чат</h3>
+                <button class="modal-close" id="chat-close">&times;</button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="chat-message system">
+                    <span class="chat-time">12:00</span>
+                    <span class="chat-text">Добро пожаловать в чат!</span>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Напишите сообщение..." maxlength="200">
+                <button id="chat-send">Отправить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно рейтинга -->
+    <div id="rating-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🏆 Топ игроков</h3>
+                <button class="modal-close" id="rating-close">&times;</button>
+            </div>
+            <div class="rating-list" id="rating-list">
+                <div class="rating-item">
+                    <span class="rating-position">1</span>
+                    <span class="rating-name">Загрузка...</span>
+                    <span class="rating-stats">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Подключаем Supabase SDK -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
@@ -476,20 +514,19 @@
     <script src="js/battle.js"></script>
     <script src="js/app.js"></script>
     
-    <!-- Подключаем Supabase SDK -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    
-    <!-- Подключаем основные скрипты -->
-    <script src="js/character.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/battle.js"></script>
-    <script src="js/app.js"></script>
-    
-    <!-- Подключаем онлайн клиент -->
-    <script src="js/online-client.js"></script>
+    <!-- ОТКЛЮЧЕНО: Старый online-client.js конфликтует с Supabase -->
+    <!-- <script src="js/online-client.js"></script> -->
     
     <!-- Подключаем Supabase клиенты -->
     <script src="js/supabase-client.js"></script>
     <script src="js/supabase-ui.js"></script>
+    
+    <!-- ЛОКАЦИЯ КАРТА - НОВОЕ! -->
+    <script src="js/map-location/map-system.js"></script>
+    <script src="js/map-location/map-battles.js"></script>
+    <script src="js/map-location/map-ui.js"></script>
+    
+    <!-- Подключаем дебаг функции (только для разработки) -->
+    <script src="js/supabase-debug.js"></script>
 </body>
 </html>

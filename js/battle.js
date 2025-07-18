@@ -110,79 +110,6 @@ class BattleSystem {
     }
     
     /**
-     * Найти противника
-     */
-    findOpponent(type) {
-        const currentUser = window.authSystem.getCurrentUser();
-        if (!currentUser) return;
-        
-        let opponent;
-        
-        if (type === 'player') {
-            opponent = this.findPlayerOpponent(currentUser);
-        }
-        
-        if (!opponent || type === 'mob') {
-            opponent = this.generateMob(currentUser);
-        }
-        
-        this.showBattleSetup(currentUser, opponent);
-    }
-    
-    /**
-     * Найти игрока-противника
-     */
-    findPlayerOpponent(currentUser) {
-        const users = window.authSystem.getUsers();
-        const currentLevel = currentUser.level || 1;
-        
-        // Ищем игроков подходящего уровня (±2)
-        const suitableOpponents = users.filter(user => {
-            const userLevel = user.level || 1;
-            return user.id !== currentUser.id && 
-                   Math.abs(userLevel - currentLevel) <= 2;
-        });
-        
-        if (suitableOpponents.length === 0) {
-            return null;
-        }
-        
-        // Выбираем случайного противника
-        const randomIndex = Math.floor(Math.random() * suitableOpponents.length);
-        return suitableOpponents[randomIndex];
-    }
-    
-    /**
-     * Сгенерировать моба
-     */
-    generateMob(currentUser) {
-        const playerStats = this.calculateBattleStats(currentUser);
-        const randomName = this.mobNames[Math.floor(Math.random() * this.mobNames.length)];
-        
-        // Генерируем моба слабее игрока для 60%+ шанса победы
-        const mobLevel = Math.max(1, (currentUser.level || 1) - Math.floor(Math.random() * 2));
-        
-        const mob = {
-            id: 'mob_' + Date.now(),
-            nickname: randomName,
-            faction: Math.random() > 0.5 ? 'workers' : 'creatives',
-            level: mobLevel,
-            isBot: true,
-            gold: 50 + Math.floor(Math.random() * 151), // 50-200 золота
-            stats: {
-                str: Math.max(1, Math.floor(playerStats.attack / 3 * (0.7 + Math.random() * 0.2))),
-                end: Math.max(1, Math.floor(playerStats.hp / 10 * (0.8 + Math.random() * 0.2))),
-                dex: Math.max(1, Math.floor((currentUser.stats?.dex || 1) * (0.6 + Math.random() * 0.3))),
-                int: Math.max(1, Math.floor((currentUser.stats?.int || 1) * (0.6 + Math.random() * 0.3))),
-                lck: Math.max(1, Math.floor((currentUser.stats?.lck || 1) * (0.6 + Math.random() * 0.3))),
-                cha: 1
-            }
-        };
-        
-        return mob;
-    }
-    
-    /**
      * Показать экран подготовки к бою
      */
     showBattleSetup(player, opponent) {
@@ -248,6 +175,27 @@ class BattleSystem {
     }
     
     /**
+     * Сохранить награды через Supabase
+     */
+    async saveRewards(user, exp, gold) {
+        try {
+            // Обновляем через Supabase
+            const updatedUser = await window.supabaseClient.savePlayer(user);
+            window.authSystem.setCurrentUser(updatedUser);
+            
+            // Обновляем отображение
+            if (window.authSystem.displayPlayerInfo) {
+                window.authSystem.displayPlayerInfo(updatedUser);
+            }
+            
+            console.log('✅ Награды сохранены в Supabase');
+        } catch (error) {
+            console.error('❌ Ошибка сохранения наград:', error);
+            alert('Ошибка сохранения наград на сервере');
+        }
+    }
+    
+    /**
      * Вернуться в игру
      */
     backToGame() {
@@ -291,16 +239,14 @@ class BattleSystem {
             document.getElementById('reward-exp').textContent = exp;
             document.getElementById('reward-gold').textContent = gold;
             
-            // Обновляем игрока
+            // Обновляем игрока через Supabase
             const currentUser = window.authSystem.getCurrentUser();
             if (currentUser) {
                 currentUser.experience = (currentUser.experience || 0) + exp;
                 currentUser.gold = (currentUser.gold || 0) + gold;
-                window.authSystem.setCurrentUser(currentUser);
                 
-                if (window.authSystem.displayPlayerInfo) {
-                    window.authSystem.displayPlayerInfo(currentUser);
-                }
+                // Сохраняем через Supabase
+                this.saveRewards(currentUser, exp, gold);
             }
         } else {
             outcomeDiv.className = 'battle-outcome defeat';

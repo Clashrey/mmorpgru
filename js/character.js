@@ -196,16 +196,24 @@ class Character {
     }
 }
 
-// Создаем глобальный экземпляр персонажа только если его еще нет
+// Создаем глобальный экземпляр персонажа только если его еще нет (УСТАРЕЛО - теперь используется Supabase)
 if (!window.gameCharacter) {
     window.gameCharacter = new Character();
+    console.log('⚠️ Character создан (устаревший класс - теперь используется Supabase)');
 }
 
 // Добавляем функцию для отладки характеристик (можно вызывать в консоли)
 window.debugCharacterStats = () => {
-    const character = window.gameCharacter;
-    console.log('=== ХАРАКТЕРИСТИКИ ПЕРСОНАЖА ===');
-    console.log('Основные статы:', character.stats);
-    console.log('Рассчитанные характеристики:', character.getCalculatedStats());
-    console.log('Информация для отображения:', character.getDisplayInfo());
+    const currentUser = window.authSystem?.getCurrentUser();
+    if (currentUser && currentUser.stats) {
+        console.log('=== ХАРАКТЕРИСТИКИ ИГРОКА (SUPABASE) ===');
+        console.log('Основные статы:', currentUser.stats);
+        console.log('Уровень:', currentUser.level);
+        console.log('Опыт:', currentUser.experience);
+        console.log('Золото:', currentUser.gold);
+        console.log('Здоровье:', currentUser.health);
+        console.log('Фракция:', currentUser.faction);
+    } else {
+        console.log('❌ Нет авторизованного игрока');
+    }
 };

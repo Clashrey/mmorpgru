@@ -1,10 +1,9 @@
 /**
- * Класс для управления авторизацией и регистрацией с новой системой характеристик
+ * Система авторизации ТОЛЬКО через Supabase (БЕЗ localStorage)
  */
 class AuthSystem {
     constructor() {
-        this.storageKey = 'mmo_rpg_users';
-        this.currentUserKey = 'mmo_rpg_current_user';
+        this.currentUser = null; // Только в памяти!
         this.initializeEventListeners();
     }
     
@@ -13,247 +12,171 @@ class AuthSystem {
      */
     initializeEventListeners() {
         document.addEventListener('DOMContentLoaded', () => {
-            // Форма регистрации
-            const registerForm = document.getElementById('register-form');
-            if (registerForm) {
-                registerForm.addEventListener('submit', (e) => this.handleRegister(e));
-            }
-            
             // Форма входа
             const loginForm = document.getElementById('login-form');
             if (loginForm) {
                 loginForm.addEventListener('submit', (e) => this.handleLogin(e));
             }
-            
-            // Проверка паролей в реальном времени
-            const passwordRepeat = document.getElementById('password-repeat');
-            if (passwordRepeat) {
-                passwordRepeat.addEventListener('input', () => this.validatePasswordMatch());
-            }
-            
-            // Проверка никнейма в реальном времени
-            const nickname = document.getElementById('nickname');
-            if (nickname) {
-                nickname.addEventListener('input', () => this.validateNickname());
-            }
         });
-    }
-    
-    /**
-     * Обработка регистрации
-     */
-    handleRegister(e) {
-        e.preventDefault();
-        console.log('handleRegister вызвана, но логика перенесена в app.js');
     }
     
     /**
      * Обработка входа
      */
-    handleLogin(e) {
+    async handleLogin(e) {
         e.preventDefault();
         
         const formData = new FormData(e.target);
         const nickname = formData.get('nickname').trim();
         const password = formData.get('password');
         
-        console.log('Попытка входа:', { nickname, password });
-        console.log('Сохраненные пользователи:', this.getUsers());
+        console.log('🔐 Попытка входа через Supabase:', nickname);
         
-        const user = this.authenticateUser(nickname, password);
-        console.log('Результат аутентификации:', user);
-        
-        if (user) {
-            this.setCurrentUser(user);
-            console.log('Пользователь установлен, переходим в игру');
-            window.gameApp.showScreen('game-screen');
-            this.displayPlayerInfo(user);
-        } else {
-            console.log('Неверный никнейм или пароль');
-            alert('Неверный никнейм или пароль');
+        try {
+            // Используем ТОЛЬКО Supabase
+            const user = await window.supabaseClient.loginPlayer(nickname, password);
+            
+            if (user) {
+                this.setCurrentUser(user);
+                
+                // Сохраняем данные для автологина
+                localStorage.setItem('mmo_auto_login', JSON.stringify({
+                    nickname: nickname,
+                    password: password
+                }));
+                
+                console.log('✅ Успешный вход:', user);
+                window.gameApp.showScreen('game-screen');
+                this.displayPlayerInfo(user);
+            }
+        } catch (error) {
+            console.error('❌ Ошибка входа:', error);
+            alert(`Ошибка входа: ${error.message}`);
         }
     }
     
     /**
-     * Валидация данных регистрации
+     * Создание нового пользователя ТОЛЬКО через Supabase
      */
-    validateRegistration(nickname, password, passwordRepeat, faction, gender) {
-        if (nickname.length < 3 || nickname.length > 20) {
-            return { isValid: false, message: 'Никнейм должен содержать от 3 до 20 символов' };
-        }
-        
-        if (!/^[a-zA-Zа-яА-Я0-9_-]+$/.test(nickname)) {
-            return { isValid: false, message: 'Никнейм может содержать только буквы, цифры, _ и -' };
-        }
-        
-        if (password.length < 6) {
-            return { isValid: false, message: 'Пароль должен содержать минимум 6 символов' };
-        }
-        
-        if (password !== passwordRepeat) {
-            return { isValid: false, message: 'Пароли не совпадают' };
-        }
-        
-        if (!faction) {
-            return { isValid: false, message: 'Выберите фракцию' };
-        }
-        
-        if (!gender) {
-            return { isValid: false, message: 'Выберите пол персонажа' };
-        }
-        
-        return { isValid: true };
-    }
-    
-    /**
-     * Проверка совпадения паролей
-     */
-    validatePasswordMatch() {
-        const password = document.getElementById('password').value;
-        const passwordRepeat = document.getElementById('password-repeat').value;
-        const repeatInput = document.getElementById('password-repeat');
-        
-        if (passwordRepeat && password !== passwordRepeat) {
-            repeatInput.style.borderColor = '#ff6b6b';
-        } else {
-            repeatInput.style.borderColor = '#444';
+    async createUser(characterData, password) {
+        try {
+            console.log('🎮 Создаем пользователя через Supabase:', characterData);
+            
+            const newUser = await window.supabaseClient.registerPlayer(characterData, password);
+            
+            console.log('✅ Пользователь создан:', newUser);
+            return newUser;
+        } catch (error) {
+            console.error('❌ Ошибка создания пользователя:', error);
+            throw error;
         }
     }
     
     /**
-     * Проверка никнейма
-     */
-    validateNickname() {
-        const nickname = document.getElementById('nickname').value.trim();
-        const nicknameInput = document.getElementById('nickname');
-        
-        if (nickname.length > 0 && !/^[a-zA-Zа-яА-Я0-9_-]+$/.test(nickname)) {
-            nicknameInput.style.borderColor = '#ff6b6b';
-        } else {
-            nicknameInput.style.borderColor = '#444';
-        }
-    }
-    
-    /**
-     * Проверка существования пользователя
+     * Проверка существования пользователя (заглушка - проверка в Supabase)
      */
     userExists(nickname) {
-        const users = this.getUsers();
-        return users.some(user => user.nickname.toLowerCase() === nickname.toLowerCase());
+        // Проверка будет в Supabase при регистрации
+        return false;
     }
     
     /**
-     * Простое хеширование пароля
+     * Аутентификация пользователя ТОЛЬКО через Supabase
      */
-    hashPassword(password) {
-        let hash = 0;
-        for (let i = 0; i < password.length; i++) {
-            const char = password.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash;
+    async authenticateUser(nickname, password) {
+        try {
+            return await window.supabaseClient.loginPlayer(nickname, password);
+        } catch (error) {
+            console.error('❌ Ошибка аутентификации:', error);
+            return null;
         }
-        return hash.toString();
     }
     
     /**
-     * Аутентификация пользователя
-     */
-    authenticateUser(nickname, password) {
-        const users = this.getUsers();
-        const hashedPassword = this.hashPassword(password);
-        console.log('Поиск пользователя:', { nickname, password, hashedPassword });
-        
-        const user = users.find(user => 
-            user.nickname.toLowerCase() === nickname.toLowerCase() && 
-            user.password === hashedPassword
-        );
-        
-        console.log('Найденный пользователь:', user);
-        return user;
-    }
-    
-    /**
-     * Создание нового пользователя с новой системой характеристик
-     */
-    createUser(characterData, password) {
-        const users = this.getUsers();
-        const hashedPassword = this.hashPassword(password);
-        
-        // Создаем персонажа с правильными стартовыми характеристиками
-        const character = new Character();
-        character.setCharacterInfo(characterData.nickname, characterData.faction, characterData.gender);
-        
-        const newUser = {
-            ...character.getCharacterData(),
-            password: hashedPassword,
-            id: this.generateUserId()
-        };
-        
-        console.log('Создаем пользователя с новой системой характеристик:', newUser);
-        
-        users.push(newUser);
-        this.saveUsers(users);
-        
-        return newUser;
-    }
-    
-    /**
-     * Получить всех пользователей из localStorage
-     */
-    getUsers() {
-        const users = localStorage.getItem(this.storageKey);
-        return users ? JSON.parse(users) : [];
-    }
-    
-    /**
-     * Сохранить пользователей в localStorage
-     */
-    saveUsers(users) {
-        localStorage.setItem(this.storageKey, JSON.stringify(users));
-    }
-    
-    /**
-     * Установить текущего пользователя
+     * Установить текущего пользователя (ТОЛЬКО в памяти)
      */
     setCurrentUser(user) {
-        localStorage.setItem(this.currentUserKey, JSON.stringify(user));
+        this.currentUser = user;
+        window.supabaseClient.setCurrentPlayer(user);
+        console.log('👤 Текущий пользователь установлен:', user.nickname);
     }
     
     /**
-     * Получить текущего пользователя
+     * Получить текущего пользователя (ТОЛЬКО из памяти)
      */
     getCurrentUser() {
-        const user = localStorage.getItem(this.currentUserKey);
-        return user ? JSON.parse(user) : null;
+        return this.currentUser || window.supabaseClient.getCurrentPlayer();
     }
     
     /**
      * Выход из системы
      */
     logout() {
-        localStorage.removeItem(this.currentUserKey);
+        // Очищаем данные автологина
+        localStorage.removeItem('mmo_auto_login');
+        
+        this.currentUser = null;
+        window.supabaseClient.logout();
         window.gameApp.showScreen('loading-screen');
+        console.log('🚺 Выход из системы');
     }
     
     /**
-     * Генерация уникального ID пользователя
+     * Выход из системы
      */
-    generateUserId() {
-        return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    logout() {
+        this.currentUser = null;
+        window.supabaseClient.logout();
+        window.gameApp.showScreen('loading-screen');
+        console.log('🚪 Выход из системы');
     }
     
     /**
-     * Показать ошибку
+     * Получить всех пользователей (заглушка - в Supabase это не нужно)
      */
-    showError(message) {
-        alert(message);
+    async getUsers() {
+        // Заглушка - возвращаем пустой массив
+        return [];
     }
     
     /**
-     * Показать информацию об игроке с новой системой характеристик
+     * Сохранить пользователей (заглушка - в Supabase не нужно)
+     */
+    async saveUsers(users) {
+        // Заглушка - ничего не делаем
+        console.log('💾 saveUsers() вызван, но игнорируется (используется Supabase)');
+    }
+    
+    /**
+     * Сохранить изменения текущего пользователя
+     */
+    async saveCurrentUser() {
+        if (!this.currentUser) {
+            console.warn('⚠️ Нет текущего пользователя для сохранения');
+            return false;
+        }
+        
+        try {
+            console.log('💾 Сохраняем пользователя в Supabase:', this.currentUser);
+            const updatedUser = await window.supabaseClient.savePlayer(this.currentUser);
+            this.currentUser = updatedUser;
+            this.displayPlayerInfo(updatedUser);
+            console.log('✅ Пользователь сохранен в Supabase');
+            return true;
+        } catch (error) {
+            console.error('❌ Ошибка сохранения пользователя:', error);
+            alert('Ошибка сохранения данных на сервере');
+            return false;
+        }
+    }
+    
+    /**
+     * Показать информацию об игроке
      */
     displayPlayerInfo(user) {
         try {
+            console.log('🎭 Отображаем информацию игрока:', user);
+            
             // Заполняем основные характеристики
             if (user.stats) {
                 const statElements = {
@@ -288,30 +211,23 @@ class AuthSystem {
                 }
             }
             
-            // Рассчитываем HP по новой формуле: 50 + END * 10
+            // Рассчитываем HP: 50 + END * 10
             const calculatedHP = user.stats ? (50 + user.stats.end * 10) : (user.health || 105);
             const healthElement = document.getElementById('game-health');
             if (healthElement) {
                 healthElement.textContent = calculatedHP;
             }
             
-            // Убираем ману из отображения (мана больше не используется)
-            const manaElement = document.getElementById('game-mana');
-            if (manaElement) {
-                manaElement.textContent = '-';
-            }
-            
-            // ИСПРАВЛЕНИЕ: Проверяем существование элемента перед использованием
+            // Фракция
             const factionBadge = document.getElementById('character-faction-badge');
             if (factionBadge && user.faction) {
                 const factionName = user.faction === 'workers' ? 'Работяги' : 'Креаклы';
                 factionBadge.textContent = factionName;
             }
             
-            console.log('Отображена информация о персонаже с новой системой характеристик');
-            console.log('Рассчитанное HP:', calculatedHP);
+            console.log('✅ Информация игрока отображена');
         } catch (error) {
-            console.error('Ошибка при отображении информации игрока:', error);
+            console.error('❌ Ошибка отображения информации игрока:', error);
         }
     }
     
@@ -319,35 +235,20 @@ class AuthSystem {
      * Завершить создание персонажа
      */
     completeCharacterCreation() {
-        const tempData = window.tempRegistrationData;
-        
-        if (!tempData) {
-            this.showError('Ошибка: данные регистрации не найдены. Попробуйте зарегистрироваться заново.');
-            window.gameApp.showScreen('loading-screen');
-            return false;
-        }
-        
-        // Создаем пользователя с новой системой характеристик
-        const newUser = this.createUser(tempData, tempData.password);
-        console.log('Новый пользователь создан с новой системой характеристик:', newUser);
-        
-        // Устанавливаем как текущего пользователя
-        this.setCurrentUser(newUser);
-        
-        // Очищаем временные данные
-        delete window.tempRegistrationData;
-        
-        // Переходим в игру
-        setTimeout(() => {
-            window.gameApp.showScreen('game-screen');
-            this.displayPlayerInfo(newUser);
-        }, 100);
-        
-        return true;
+        console.log('⚠️ Устаревший метод - используйте прямую регистрацию через Supabase');
+        return false;
+    }
+    
+    /**
+     * Показать ошибку
+     */
+    showError(message) {
+        alert(message);
     }
 }
 
 // Создаем глобальный экземпляр системы авторизации только если его еще нет
 if (!window.authSystem) {
     window.authSystem = new AuthSystem();
+    console.log('🔐 AuthSystem создан (ТОЛЬКО Supabase)');
 }

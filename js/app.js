@@ -89,6 +89,85 @@ class GameApp {
                 });
             }
             
+            // КНОПКА ЛОКАЦИИ КАРТА - НОВОЕ!
+            const mapLocationBtn = document.getElementById('map-location-btn');
+            if (mapLocationBtn) {
+                mapLocationBtn.addEventListener('click', () => {
+                    console.log('🗺️ Переходим в локацию Карта...');
+                    
+                    // Проверяем, что система карты доступна
+                    if (window.mapLocationUI) {
+                        // Скрываем основной интерфейс
+                        this.showScreen('game-screen');
+                        
+                        // Показываем интерфейс карты
+                        window.mapLocationUI.createMapLocationInterface();
+                        
+                        console.log('✅ Локация Карта открыта!');
+                    } else {
+                        console.error('❌ Ошибка: система карты не доступна');
+                        alert('Ошибка: локация карта не доступна');
+                    }
+                });
+            }
+            
+            // Кнопка чата
+            const chatBtn = document.getElementById('chat-btn');
+            if (chatBtn) {
+                chatBtn.addEventListener('click', () => this.showChat());
+            }
+            
+            // Кнопка рейтинга
+            const ratingBtn = document.getElementById('rating-btn');
+            if (ratingBtn) {
+                ratingBtn.addEventListener('click', () => this.showRating());
+            }
+            
+            // Модальные окна
+            const chatClose = document.getElementById('chat-close');
+            const ratingClose = document.getElementById('rating-close');
+            const chatSend = document.getElementById('chat-send');
+            const chatInput = document.getElementById('chat-input');
+            const chatModal = document.getElementById('chat-modal');
+            const ratingModal = document.getElementById('rating-modal');
+            
+            if (chatClose) {
+                chatClose.addEventListener('click', () => this.hideModal('chat-modal'));
+            }
+            
+            if (ratingClose) {
+                ratingClose.addEventListener('click', () => this.hideModal('rating-modal'));
+            }
+            
+            // Закрытие по клику на фон
+            if (chatModal) {
+                chatModal.addEventListener('click', (e) => {
+                    if (e.target === chatModal) {
+                        this.hideModal('chat-modal');
+                    }
+                });
+            }
+            
+            if (ratingModal) {
+                ratingModal.addEventListener('click', (e) => {
+                    if (e.target === ratingModal) {
+                        this.hideModal('rating-modal');
+                    }
+                });
+            }
+            
+            if (chatSend) {
+                chatSend.addEventListener('click', () => this.sendChatMessage());
+            }
+            
+            if (chatInput) {
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendChatMessage();
+                    }
+                });
+            }
+            
             // Кнопка возврата из спортзала
             const gymBackBtn = document.getElementById('gym-back-btn');
             if (gymBackBtn) {
@@ -217,14 +296,14 @@ class GameApp {
     /**
      * Найти противника
      */
-    findOpponent(type) {
+    async findOpponent(type) {
         const currentUser = window.authSystem.getCurrentUser();
         if (!currentUser) return;
         
         let opponent;
         
         if (type === 'player') {
-            opponent = this.findPlayerOpponent(currentUser);
+            opponent = await this.findPlayerOpponent(currentUser);
         }
         
         if (!opponent || type === 'mob') {
@@ -235,37 +314,80 @@ class GameApp {
     }
     
     /**
-     * Найти игрока-противника
+     * Найти игрока-противника через Supabase
      */
-    findPlayerOpponent(currentUser) {
-        const users = window.authSystem.getUsers();
-        const currentLevel = currentUser.level || 1;
-        
-        // Ищем игроков подходящего уровня (±2)
-        const suitableOpponents = users.filter(user => {
-            const userLevel = user.level || 1;
-            return user.id !== currentUser.id && 
-                   Math.abs(userLevel - currentLevel) <= 2;
-        });
-        
-        if (suitableOpponents.length === 0) {
+    async findPlayerOpponent(currentUser) {
+        try {
+            if (!window.supabaseClient || !window.supabaseClient.isConnected) {
+                console.log('⚠️ Supabase не подключен, создаем моба');
+                return null;
+            }
+            
+            const players = await window.supabaseClient.getPlayersRanking(50); // Получаем всех игроков
+            const currentLevel = currentUser.level || 1;
+            
+            // Ищем игроков подходящего уровня (±3)
+            const suitableOpponents = players.filter(player => {
+                const playerLevel = player.level || 1;
+                return player.nickname !== currentUser.nickname && 
+                       Math.abs(playerLevel - currentLevel) <= 3;
+            });
+            
+            if (suitableOpponents.length === 0) {
+                console.log('👥 Подходящих игроков не найдено, создаем моба');
+                return null;
+            }
+            
+            // Выбираем случайного противника
+            const randomIndex = Math.floor(Math.random() * suitableOpponents.length);
+            const opponent = suitableOpponents[randomIndex];
+            
+            // Преобразуем в нужный формат
+            const formattedOpponent = {
+                id: 'player_' + opponent.nickname,
+                nickname: opponent.nickname,
+                faction: opponent.faction,
+                level: opponent.level,
+                isBot: false,
+                gold: 0, // Не берем золото у игроков
+                stats: {
+                    str: opponent.str || 1,
+                    end: opponent.end_stat || 1,
+                    dex: opponent.dex || 1,
+                    int: opponent.int || 1,
+                    cha: opponent.cha || 1,
+                    lck: opponent.lck || 1
+                }
+            };
+            
+            console.log('👥 Найден игрок-противник:', formattedOpponent);
+            return formattedOpponent;
+            
+        } catch (error) {
+            console.error('❌ Ошибка поиска игроков:', error);
             return null;
         }
-        
-        // Выбираем случайного противника
-        const randomIndex = Math.floor(Math.random() * suitableOpponents.length);
-        return suitableOpponents[randomIndex];
     }
     
     /**
-     * Сгенерировать моба
+     * Сгенерировать моба (слабее игрока)
      */
     generateMob(currentUser) {
-        const playerStats = this.calculateBattleStats(currentUser);
         const randomName = this.mobNames[Math.floor(Math.random() * this.mobNames.length)];
+        const playerLevel = currentUser.level || 1;
         
-        // Генерируем моба слабее игрока для 60%+ шанса победы
-        const mobLevel = Math.max(1, (currentUser.level || 1) - Math.floor(Math.random() * 2));
+        // Моб на 1-2 уровня ниже игрока
+        const mobLevel = Math.max(1, playerLevel - 1 - Math.floor(Math.random() * 2));
+        
+        // Базовые статы моба (слабые)
+        const baseStats = {
+            str: Math.max(1, Math.floor(mobLevel * 0.8) + Math.floor(Math.random() * 2)),
+            end: Math.max(1, Math.floor(mobLevel * 0.7) + Math.floor(Math.random() * 2)),
+            dex: Math.max(1, Math.floor(mobLevel * 0.6) + Math.floor(Math.random() * 2)),
+            int: Math.max(1, Math.floor(mobLevel * 0.5) + Math.floor(Math.random() * 2)),
+            cha: 1,
+            lck: Math.max(1, Math.floor(mobLevel * 0.5) + Math.floor(Math.random() * 2))
+        };
         
         const mob = {
             id: 'mob_' + Date.now(),
@@ -273,16 +395,16 @@ class GameApp {
             faction: Math.random() > 0.5 ? 'workers' : 'creatives',
             level: mobLevel,
             isBot: true,
-            gold: 50 + Math.floor(Math.random() * 151), // 50-200 золота
-            stats: {
-                str: Math.max(1, Math.floor(playerStats.attack / 3 * (0.7 + Math.random() * 0.2))),
-                end: Math.max(1, Math.floor(playerStats.hp / 10 * (0.8 + Math.random() * 0.2))),
-                dex: Math.max(1, Math.floor((currentUser.stats?.dex || 1) * (0.6 + Math.random() * 0.3))),
-                int: Math.max(1, Math.floor((currentUser.stats?.int || 1) * (0.6 + Math.random() * 0.3))),
-                lck: Math.max(1, Math.floor((currentUser.stats?.lck || 1) * (0.6 + Math.random() * 0.3))),
-                cha: 1
-            }
+            gold: 15 + Math.floor(Math.random() * 35), // 15-50 золота
+            stats: baseStats
         };
+        
+        console.log('👹 Сгенерирован моб:', {
+            name: randomName,
+            level: mobLevel,
+            playerLevel: playerLevel,
+            stats: baseStats
+        });
         
         return mob;
     }
@@ -555,86 +677,73 @@ class GameApp {
     }
     
     /**
-     * Применить награды
+     * Применить награды (сохранение в Supabase)
      */
-    applyRewards() {
+    async applyRewards() {
         const currentUser = window.authSystem.getCurrentUser();
         const battle = this.currentBattle;
         
         if (!currentUser || !battle || !battle.rewards) {
-            console.error('Не удалось применить награды:', { currentUser, battle });
+            console.error('❌ Не удалось применить награды:', { currentUser, battle });
             return;
         }
         
-        console.log('Применяем награды:', battle.rewards);
+        console.log('🎁 Применяем награды:', battle.rewards);
         
-        // Применяем опыт
-        if (battle.rewards.exp > 0) {
-            currentUser.experience = (currentUser.experience || 0) + battle.rewards.exp;
-            
-            // Проверяем повышение уровня
-            const requiredExp = (currentUser.level || 1) * 100;
-            if (currentUser.experience >= requiredExp) {
-                currentUser.level = (currentUser.level || 1) + 1;
-                currentUser.experience = 0;
-                
-                // Повышаем все статы на 1
-                if (currentUser.stats) {
-                    Object.keys(currentUser.stats).forEach(stat => {
-                        currentUser.stats[stat] += 1;
-                    });
-                }
-                
-                // Даем 50 золота за повышение уровня
-                currentUser.gold = (currentUser.gold || 0) + 50;
-                
-                // Пересчитываем здоровье
-                currentUser.health = 50 + (currentUser.stats?.end || 1) * 10;
-                
-                console.log(`🎉 ПОВЫШЕНИЕ УРОВНЯ! Новый уровень: ${currentUser.level}`);
-                
-                // Показываем уведомление о повышении уровня
-                setTimeout(() => {
-                    alert(`🎉 Поздравляем! Вы достигли ${currentUser.level} уровня!\nВсе характеристики увеличены на 1.\nБонус: +50 золота!`);
-                }, 500);
-            }
-        }
-        
-        // Применяем золото
-        currentUser.gold = Math.max(0, (currentUser.gold || 0) + battle.rewards.gold);
-        
-        console.log('Обновленный пользователь:', currentUser);
-        
-        // ВАЖНО: Сохраняем изменения в localStorage
         try {
-            // Получаем всех пользователей
-            const users = window.authSystem.getUsers();
-            
-            // Находим и обновляем текущего пользователя
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            if (userIndex !== -1) {
-                users[userIndex] = currentUser;
+            // Применяем опыт
+            if (battle.rewards.exp > 0) {
+                currentUser.experience = (currentUser.experience || 0) + battle.rewards.exp;
                 
-                // Сохраняем обновленный список пользователей
-                window.authSystem.saveUsers(users);
-                
-                // Обновляем текущего пользователя в сессии
-                window.authSystem.setCurrentUser(currentUser);
-                
-                console.log('✅ Изменения сохранены в localStorage');
-                
-                // Обновляем отображение после небольшой задержки
-                setTimeout(() => {
-                    window.authSystem.displayPlayerInfo(currentUser);
-                }, 100);
-            } else {
-                console.error('❌ Пользователь не найден в списке!');
+                // Проверяем повышение уровня
+                const requiredExp = (currentUser.level || 1) * 100;
+                if (currentUser.experience >= requiredExp) {
+                    currentUser.level = (currentUser.level || 1) + 1;
+                    currentUser.experience = 0;
+                    
+                    // Повышаем все статы на 1
+                    if (currentUser.stats) {
+                        Object.keys(currentUser.stats).forEach(stat => {
+                            currentUser.stats[stat] += 1;
+                        });
+                    }
+                    
+                    // Даем 50 золота за повышение уровня
+                    currentUser.gold = (currentUser.gold || 0) + 50;
+                    
+                    // Пересчитываем здоровье
+                    currentUser.health = 50 + (currentUser.stats?.end || 1) * 10;
+                    
+                    console.log(`🎉 ПОВЫШЕНИЕ УРОВНЯ! Новый уровень: ${currentUser.level}`);
+                    
+                    // Показываем уведомление о повышении уровня
+                    setTimeout(() => {
+                        alert(`🎉 Поздравляем! Вы достигли ${currentUser.level} уровня!\nВсе характеристики увеличены на 1.\nБонус: +50 золота!`);
+                    }, 500);
+                }
             }
+            
+            // Применяем золото
+            currentUser.gold = Math.max(0, (currentUser.gold || 0) + battle.rewards.gold);
+            
+            console.log('🔄 Обновленный пользователь:', currentUser);
+            
+            // Сохраняем в Supabase
+            await window.authSystem.saveCurrentUser();
+            
+            console.log('✅ Награды сохранены в Supabase');
+            
+            // Обновляем отображение
+            setTimeout(() => {
+                window.authSystem.displayPlayerInfo(currentUser);
+            }, 100);
+            
         } catch (error) {
             console.error('❌ Ошибка сохранения наград:', error);
+            alert('Ошибка сохранения наград на сервере');
         }
         
-        console.log('Награды применены:', {
+        console.log('✅ Награды применены:', {
             exp: battle.rewards.exp,
             gold: battle.rewards.gold,
             newGold: currentUser.gold,
@@ -739,10 +848,10 @@ class GameApp {
     }
     
     /**
-     * Инициализация кнопки регистрации с новой системой характеристик
+     * Инициализация кнопки регистрации ТОЛЬКО через Supabase
      */
     initRegisterButton() {
-        console.log('Инициализация кнопки регистрации...');
+        console.log('🔧 Инициализация кнопки регистрации (ТОЛЬКО Supabase)...');
         
         setTimeout(() => {
             const btnContinueRegistration = document.getElementById('btn-continue-registration');
@@ -752,13 +861,13 @@ class GameApp {
                 const newBtn = btnContinueRegistration.cloneNode(true);
                 btnContinueRegistration.parentNode.replaceChild(newBtn, btnContinueRegistration);
                 
-                newBtn.addEventListener('click', () => {
-                    console.log('Кнопка Продолжить нажата');
+                newBtn.addEventListener('click', async () => {
+                    console.log('🎮 Кнопка Создать персонажа нажата');
                     
                     try {
                         const form = document.getElementById('register-form');
                         if (!form) {
-                            console.error('Форма регистрации не найдена');
+                            console.error('❌ Форма регистрации не найдена');
                             return;
                         }
                         
@@ -769,7 +878,7 @@ class GameApp {
                         const faction = formData.get('faction') || '';
                         const gender = formData.get('gender') || '';
                         
-                        console.log('Данные формы:', { nickname, password, passwordRepeat, faction, gender });
+                        console.log('📝 Данные формы:', { nickname, faction, gender });
                         
                         // Валидация
                         if (nickname.length < 3) {
@@ -797,50 +906,50 @@ class GameApp {
                             return;
                         }
                         
-                        // Проверка существования пользователя
-                        if (window.authSystem && window.authSystem.userExists(nickname)) {
-                            alert('Пользователь с таким никнеймом уже существует');
+                        // Проверяем подключение к Supabase
+                        if (!window.supabaseClient || !window.supabaseClient.isConnected) {
+                            alert('Ошибка: нет подключения к серверу. Попробуйте перезагрузить страницу.');
                             return;
                         }
                         
-                        // Создаем персонажа с новой системой характеристик
-                        window.gameCharacter.setCharacterInfo(nickname, faction, gender);
+                        // Создаем данные персонажа
+                        const characterData = {
+                            nickname: nickname,
+                            faction: faction,
+                            gender: gender
+                        };
                         
-                        const characterData = window.gameCharacter.getCharacterData();
-                        console.log('Создаем персонажа с новой системой:', characterData);
+                        console.log('🚀 Регистрируем через Supabase:', characterData);
                         
-                        // Создаем пользователя
-                        if (window.authSystem) {
-                            const newUser = window.authSystem.createUser(characterData, password);
-                            window.authSystem.setCurrentUser(newUser);
-                            
-                            console.log('Пользователь создан:', newUser);
-                            
-                            // Переходим в игру
-                            this.showScreen('game-screen');
-                            window.authSystem.displayPlayerInfo(newUser);
-                            
-                            alert('Персонаж создан успешно!');
-                        } else {
-                            console.error('authSystem не найден');
-                        }
+                        // Создаем пользователя через Supabase
+                        const newUser = await window.authSystem.createUser(characterData, password);
+                        window.authSystem.setCurrentUser(newUser);
+                        
+                        console.log('✅ Пользователь создан:', newUser);
+                        
+                        // Переходим в игру
+                        this.showScreen('game-screen');
+                        window.authSystem.displayPlayerInfo(newUser);
+                        
+                        alert('🎉 Персонаж создан успешно!');
                         
                     } catch (error) {
-                        console.error('Ошибка при создании персонажа:', error);
+                        console.error('❌ Ошибка при создании персонажа:', error);
+                        alert(`Ошибка создания персонажа: ${error.message}`);
                     }
                 });
                 
-                console.log('Обработчик события добавлен к кнопке');
+                console.log('✅ Обработчик регистрации привязан');
             } else {
-                console.error('Кнопка btn-continue-registration не найдена!');
+                console.error('❌ Кнопка btn-continue-registration не найдена!');
             }
         }, 100);
     }
     
     /**
-     * Тренировка характеристики с новой системой стоимости
+     * Тренировка характеристики через Supabase
      */
-    trainStat(statName) {
+    async trainStat(statName) {
         const currentUser = window.authSystem.getCurrentUser();
         if (!currentUser) return;
         
@@ -870,27 +979,32 @@ class GameApp {
             currentUser.health = 50 + currentUser.stats.end * 10;
         }
         
-        // Сохраняем обновленного пользователя
-        const users = window.authSystem.getUsers();
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
-        if (userIndex !== -1) {
-            users[userIndex] = currentUser;
-            window.authSystem.saveUsers(users);
-            window.authSystem.setCurrentUser(currentUser);
+        try {
+            // Сохраняем в Supabase
+            await window.authSystem.saveCurrentUser();
+            
+            // Обновляем отображение в спортзале
+            this.updateGymDisplay(currentUser);
+            
+            // Обновляем отображение в основном интерфейсе
+            window.authSystem.displayPlayerInfo(currentUser);
+            
+            console.log('💪 Тренировка завершена:', {
+                stat: statName,
+                newLevel: currentUser.stats[statName],
+                goldSpent: cost,
+                remainingGold: currentUser.gold
+            });
+        } catch (error) {
+            console.error('❌ Ошибка сохранения тренировки:', error);
+            // Откатываем изменения
+            currentUser.stats[statName] -= 1;
+            currentUser.gold += cost;
+            if (statName === 'end') {
+                currentUser.health = 50 + currentUser.stats.end * 10;
+            }
+            alert('Ошибка сохранения тренировки');
         }
-        
-        // Обновляем отображение в спортзале
-        this.updateGymDisplay(currentUser);
-        
-        // Обновляем отображение в основном интерфейсе
-        window.authSystem.displayPlayerInfo(currentUser);
-        
-        console.log('Тренировка завершена:', {
-            stat: statName,
-            newLevel: currentUser.stats[statName],
-            goldSpent: cost,
-            remainingGold: currentUser.gold
-        });
     }
     
     /**
@@ -910,20 +1024,161 @@ class GameApp {
     }
     
     /**
-     * Проверка автоматического входа
+     * Проверка автоматического входа (С автологином через Supabase)
      */
     checkAutoLogin() {
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const currentUser = window.authSystem.getCurrentUser();
-                if (currentUser) {
-                    this.showScreen('game-screen');
-                    window.authSystem.displayPlayerInfo(currentUser);
-                } else {
-                    this.showScreen('loading-screen');
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Проверяем автологин...');
+            
+            // Инициализируем Supabase при запуске
+            await this.initializeSupabase();
+            
+            // Проверяем сохраненные данные о пользователе
+            const savedUser = localStorage.getItem('mmo_auto_login');
+            
+            if (savedUser) {
+                try {
+                    const userData = JSON.parse(savedUser);
+                    console.log('🔄 Найдены сохраненные данные:', userData.nickname);
+                    
+                    // Проверяем что Supabase подключен
+                    if (window.supabaseClient && window.supabaseClient.isConnected) {
+                        // Пытаемся войти через Supabase
+                        const user = await window.supabaseClient.loginPlayer(userData.nickname, userData.password);
+                        
+                        if (user) {
+                            window.authSystem.setCurrentUser(user);
+                            this.showScreen('game-screen');
+                            window.authSystem.displayPlayerInfo(user);
+                            console.log('✅ Автологин успешен!');
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка автологина:', error);
+                    // Удаляем неверные данные
+                    localStorage.removeItem('mmo_auto_login');
                 }
+            }
+            
+            // Показываем стартовый экран если автологин не удался
+            setTimeout(() => {
+                this.showScreen('loading-screen');
+                console.log('🏠 Показан стартовый экран');
             }, 100);
         });
+    }
+    
+    /**
+     * Инициализация Supabase при запуске приложения
+     */
+    async initializeSupabase() {
+        console.log('🚀 Инициализируем Supabase...');
+        
+        try {
+            // Проверяем что Supabase клиент существует
+            if (window.supabaseClient) {
+                const success = await window.supabaseClient.initialize();
+                
+                if (success) {
+                    console.log('✅ Supabase подключен! Переключаемся на онлайн режим.');
+                    this.showConnectionStatus('🌐 Подключено к серверу', 'success');
+                    
+                    // Заменяем localStorage методы на Supabase
+                    this.enableSupabaseMode();
+                } else {
+                    console.log('⚠️ Supabase недоступен. Работаем в оффлайн режиме.');
+                    this.showConnectionStatus('💾 Оффлайн режим', 'warning');
+                }
+            } else {
+                console.log('❌ Supabase клиент не найден');
+            }
+        } catch (error) {
+            console.error('❌ Ошибка инициализации Supabase:', error);
+            this.showConnectionStatus('⚠️ Ошибка подключения', 'error');
+        }
+    }
+    
+    /**
+     * Включение режима Supabase
+     */
+    enableSupabaseMode() {
+        // Интегрируем с authSystem
+        if (window.authSystem) {
+            const originalCreateUser = window.authSystem.createUser;
+            const originalAuthenticateUser = window.authSystem.authenticateUser;
+            
+            // Заменяем создание пользователя
+            window.authSystem.createUser = async function(characterData, password) {
+                if (window.supabaseClient && window.supabaseClient.isConnected) {
+                    try {
+                        console.log('📝 Регистрируем через Supabase:', characterData);
+                        const supabaseUser = await window.supabaseClient.registerPlayer(characterData, password);
+                        console.log('✅ Пользователь зарегистрирован в Supabase:', supabaseUser);
+                        return supabaseUser;
+                    } catch (error) {
+                        console.log('⚠️ Ошибка Supabase, используем localStorage:', error.message);
+                        return originalCreateUser.call(this, characterData, password);
+                    }
+                } else {
+                    return originalCreateUser.call(this, characterData, password);
+                }
+            };
+            
+            // Заменяем авторизацию
+            window.authSystem.authenticateUser = async function(nickname, password) {
+                if (window.supabaseClient && window.supabaseClient.isConnected) {
+                    try {
+                        console.log('🔐 Авторизуемся через Supabase:', nickname);
+                        const supabaseUser = await window.supabaseClient.loginPlayer(nickname, password);
+                        console.log('✅ Успешная авторизация через Supabase:', supabaseUser);
+                        return supabaseUser;
+                    } catch (error) {
+                        console.log('⚠️ Ошибка Supabase, используем localStorage:', error.message);
+                        return originalAuthenticateUser.call(this, nickname, password);
+                    }
+                } else {
+                    return originalAuthenticateUser.call(this, nickname, password);
+                }
+            };
+            
+            console.log('🔄 AuthSystem интегрирован с Supabase');
+        }
+    }
+    
+    /**
+     * Показать статус подключения
+     */
+    showConnectionStatus(message, type) {
+        const statusDiv = document.createElement('div');
+        statusDiv.id = 'connection-status';
+        statusDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: ${type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : '#dc3545'};
+            color: white;
+            border-radius: 5px;
+            z-index: 1000;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        `;
+        statusDiv.textContent = message;
+        
+        // Удаляем предыдущий статус
+        const existing = document.getElementById('connection-status');
+        if (existing) existing.remove();
+        
+        document.body.appendChild(statusDiv);
+        
+        // Автоматически скрываем через 5 секунд
+        setTimeout(() => {
+            if (statusDiv.parentElement) {
+                statusDiv.remove();
+            }
+        }, 5000);
     }
     
     /**
@@ -932,6 +1187,164 @@ class GameApp {
     showNotification(message, type = 'info') {
         // Только в консоль
         console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+    
+    /**
+     * Показать модальное окно
+     */
+    showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('active');
+        }
+    }
+    
+    /**
+     * Скрыть модальное окно
+     */
+    hideModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+    
+    /**
+     * Показать чат
+     */
+    async showChat() {
+        try {
+            this.showModal('chat-modal');
+            await this.loadChatMessages();
+        } catch (error) {
+            console.error('❌ Ошибка загрузки чата:', error);
+            alert('Ошибка загрузки чата');
+        }
+    }
+    
+    /**
+     * Загрузить сообщения чата
+     */
+    async loadChatMessages() {
+        if (!window.supabaseClient || !window.supabaseClient.isConnected) {
+            return;
+        }
+        
+        try {
+            const messages = await window.supabaseClient.getChatMessages(20);
+            const chatMessages = document.getElementById('chat-messages');
+            
+            if (chatMessages) {
+                chatMessages.innerHTML = '';
+                
+                if (messages.length === 0) {
+                    chatMessages.innerHTML = '<div class="chat-message system"><span class="chat-time">' + 
+                        new Date().toLocaleTimeString('ru', {hour: '2-digit', minute: '2-digit'}) + 
+                        '</span><span class="chat-text">Добро пожаловать в чат! Напишите первое сообщение.</span></div>';
+                    return;
+                }
+                
+                messages.forEach(msg => {
+                    const messageDiv = document.createElement('div');
+                    const faction = msg.players.faction || 'system';
+                    messageDiv.className = `chat-message ${faction}`;
+                    
+                    const time = new Date(msg.created_at).toLocaleTimeString('ru', {
+                        hour: '2-digit', 
+                        minute: '2-digit'
+                    });
+                    
+                    messageDiv.innerHTML = `
+                        <span class="chat-time">${time}</span>
+                        <strong>${msg.players.nickname}:</strong>
+                        <span class="chat-text">${msg.message}</span>
+                    `;
+                    
+                    chatMessages.appendChild(messageDiv);
+                });
+                
+                // Прокручиваем вниз
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        } catch (error) {
+            console.error('❌ Ошибка загрузки сообщений:', error);
+        }
+    }
+    
+    /**
+     * Отправить сообщение в чат
+     */
+    async sendChatMessage() {
+        const input = document.getElementById('chat-input');
+        if (!input || !input.value.trim()) return;
+        
+        const message = input.value.trim();
+        
+        try {
+            await window.supabaseClient.sendChatMessage(message);
+            input.value = '';
+            
+            // Перезагружаем сообщения
+            await this.loadChatMessages();
+        } catch (error) {
+            console.error('❌ Ошибка отправки сообщения:', error);
+            alert('Ошибка отправки сообщения');
+        }
+    }
+    
+    /**
+     * Показать рейтинг игроков
+     */
+    async showRating() {
+        try {
+            this.showModal('rating-modal');
+            await this.loadPlayersRanking();
+        } catch (error) {
+            console.error('❌ Ошибка загрузки рейтинга:', error);
+            alert('Ошибка загрузки рейтинга');
+        }
+    }
+    
+    /**
+     * Загрузить рейтинг игроков
+     */
+    async loadPlayersRanking() {
+        if (!window.supabaseClient || !window.supabaseClient.isConnected) {
+            return;
+        }
+        
+        try {
+            const players = await window.supabaseClient.getPlayersRanking(10);
+            const ratingList = document.getElementById('rating-list');
+            
+            if (ratingList) {
+                ratingList.innerHTML = '';
+                
+                if (players.length === 0) {
+                    ratingList.innerHTML = '<div class="rating-item"><span class="rating-name">Пока нет игроков в рейтинге</span></div>';
+                    return;
+                }
+                
+                players.forEach((player, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'rating-item';
+                    
+                    const factionName = player.faction === 'workers' ? 'Работяги' : 'Креаклы';
+                    const factionClass = player.faction;
+                    
+                    itemDiv.innerHTML = `
+                        <span class="rating-position">${index + 1}</span>
+                        <span class="rating-name">${player.nickname}</span>
+                        <span class="rating-faction ${factionClass}">${factionName}</span>
+                        <span class="rating-stats">Уровень ${player.level} | Статы: ${player.totalStats}</span>
+                    `;
+                    
+                    ratingList.appendChild(itemDiv);
+                });
+            }
+        } catch (error) {
+            console.error('❌ Ошибка загрузки рейтинга:', error);
+        }
     }
     
     /**
@@ -1027,16 +1440,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const arenaBackBtn = document.getElementById('arena-back-btn');
         
         if (findPlayerBtn) {
-            findPlayerBtn.onclick = () => {
+            findPlayerBtn.onclick = async () => {
                 console.log('Поиск игрока нажат');
-                window.gameApp.findOpponent('player');
+                await window.gameApp.findOpponent('player');
             };
         }
         
         if (findMobBtn) {
-            findMobBtn.onclick = () => {
+            findMobBtn.onclick = async () => {
                 console.log('Поиск моба нажат');
-                window.gameApp.findOpponent('mob');
+                await window.gameApp.findOpponent('mob');
             };
         }
         
